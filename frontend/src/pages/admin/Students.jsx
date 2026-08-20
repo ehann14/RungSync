@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Search, X, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -64,9 +65,9 @@ const css = `
 .rsx-btn-sm{padding:6px 11px;font-size:12px;border-radius:6px;margin-right:6px;}
 .rsx-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
 .rsx-search-wrap{flex:1;min-width:200px;position:relative;}
-.rsx-search-wrap .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.6;}
+.rsx-search-wrap .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.6;color:var(--muted);}
 .rsx-search{width:100%;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);
-border-radius:10px;padding:10px 12px 10px 34px;font-size:13px;outline:none;}
+border-radius:10px;padding:10px 12px 10px 38px;font-size:13px;outline:none;}
 .rsx-search:focus{border-color:#2563eb;}
 .rsx-select{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);
 border-radius:10px;padding:10px 12px;font-size:13px;outline:none;min-width:160px;}
@@ -91,7 +92,8 @@ background:rgba(37,99,235,.12);color:#93c5fd;margin-right:6px;}
 .rsx-modal{width:440px;max-width:100%;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:22px;}
 .rsx-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .rsx-modal-header h3{color:var(--text-strong);font-size:17px;font-weight:700;margin:0;}
-.rsx-close{background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;}
+.rsx-close{background:transparent;border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;padding:4px;border-radius:6px;transition:.2s;}
+.rsx-close:hover{background:rgba(100,116,139,.15);color:var(--text-strong);}
 .rsx-form-group{margin-bottom:12px;}
 .rsx-form-group label{display:block;font-size:12px;color:var(--label);margin-bottom:6px;font-weight:600;}
 .rsx-input,.rsx-select-full{width:100%;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;}
@@ -162,7 +164,6 @@ export default function Students() {
     return list;
   }, [students, query, grade, sortBy]);
 
-  // ===== semua hook dijalankan, baru early return =====
   if (loading) return <PageLoader text="Memuat data siswa…" />;
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setError(''); setModalOpen(true); };
@@ -233,7 +234,7 @@ export default function Students() {
 
       <div className="rsx-toolbar">
         <div className="rsx-search-wrap">
-          <span className="ic">🔍</span>
+          <Search size={16} className="ic" />
           <input
             className="rsx-search"
             placeholder="Cari siswa… nama / email / NIS / kelas"
@@ -310,7 +311,7 @@ export default function Students() {
           <div className="rsx-modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="rsx-modal-header">
               <h3>{editing ? 'Edit Siswa' : 'Tambah Siswa'}</h3>
-              <button className="rsx-close" onClick={() => setModalOpen(false)} type="button">✕</button>
+              <button className="rsx-close" onClick={() => setModalOpen(false)} type="button"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="rsx-form-group">
@@ -354,7 +355,8 @@ export default function Students() {
             <p className="rsx-reset-sub">Beritahukan password ini kepada siswa bersangkutan:</p>
             <div className="rsx-reset-password">{resetInfo.password}</div>
             <p className="rsx-reset-note">
-              ⚠️ Password lama sudah tidak berlaku. Setelah modal ini ditutup,
+              <AlertTriangle size={14} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} />
+              Password lama sudah tidak berlaku. Setelah modal ini ditutup,
               password tidak dapat dilihat lagi — admin hanya bisa me-reset ulang.
             </p>
             <div className="rsx-reset-actions">

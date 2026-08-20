@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { X, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -68,7 +69,8 @@ const css = `
 .rsx-modal{width:480px;max-width:100%;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:22px;}
 .rsx-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .rsx-modal-header h3{color:var(--text-strong);font-size:17px;font-weight:700;margin:0;}
-.rsx-close{background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;}
+.rsx-close{background:transparent;border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;padding:4px;border-radius:6px;transition:.2s;}
+.rsx-close:hover{background:rgba(100,116,139,.15);color:var(--text-strong);}
 .rsx-form-group{margin-bottom:12px;}
 .rsx-form-group label{display:block;font-size:12px;color:var(--label);margin-bottom:6px;font-weight:600;}
 .rsx-input{width:100%;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;}
@@ -114,7 +116,6 @@ export default function Teachers() {
 
   useEffect(() => { load(); }, [load]);
 
-  // ===== early return setelah semua hooks =====
   if (loading) return <PageLoader text="Memuat data guru…" />;
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setError(''); setModalOpen(true); };
@@ -235,7 +236,7 @@ export default function Teachers() {
           <div className="rsx-modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="rsx-modal-header">
               <h3>{editing ? 'Edit Guru' : 'Tambah Guru'}</h3>
-              <button className="rsx-close" onClick={() => setModalOpen(false)} type="button">✕</button>
+              <button className="rsx-close" onClick={() => setModalOpen(false)} type="button"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="rsx-form-group">
@@ -295,7 +296,8 @@ export default function Teachers() {
             <p className="rsx-reset-sub">Beritahukan password ini kepada guru bersangkutan:</p>
             <div className="rsx-reset-password">{resetInfo.password}</div>
             <p className="rsx-reset-note">
-              ⚠️ Password lama sudah tidak berlaku. Setelah modal ini ditutup,
+              <AlertTriangle size={14} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} />
+              Password lama sudah tidak berlaku. Setelah modal ini ditutup,
               password tidak dapat dilihat lagi — admin hanya bisa me-reset ulang.
             </p>
             <div className="rsx-reset-actions">

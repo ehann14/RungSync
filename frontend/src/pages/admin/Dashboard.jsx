@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Hand, RefreshCw, Clock, Circle, Timer, Coffee,
+  School, UserCheck, Users, DoorOpen, CalendarDays,
+  Calendar, Bell, X, CheckCircle, Moon
+} from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -73,15 +78,15 @@ const css = `
 @keyframes admPulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 .adm-anim{animation:admUp .5s ease both;}
 .adm-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
-.adm-head h2{font-size:22px;font-weight:800;color:var(--strong);margin:0;}
+.adm-head h2{font-size:22px;font-weight:800;color:var(--strong);margin:0;display:flex;align-items:center;}
 .adm-clock{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap;}
 .adm-clock .chip{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;border-radius:999px;
-padding:6px 14px;font-weight:800;font-size:12px;font-variant-numeric:tabular-nums;}
+padding:6px 14px;font-weight:800;font-size:12px;font-variant-numeric:tabular-nums;display:flex;align-items:center;}
 .adm-upd{font-size:11px;color:var(--muted);}
 .adm-refresh{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:10px;
 padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s;}
 .adm-refresh:hover{color:var(--strong);border-color:#2563eb;}
-.adm-refresh .ic{display:inline-block;font-size:13px;}
+.adm-refresh .ic{display:inline-flex;align-items:center;justify-content:center;}
 .adm-refresh.spin .ic{animation:admSpin .9s linear infinite;}
 
 /* banner "now" */
@@ -90,7 +95,7 @@ padding:14px 18px;margin-bottom:16px;}
 .adm-hero.live{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);}
 .adm-hero.next{background:rgba(37,99,235,.1);border-color:rgba(37,99,235,.35);}
 .adm-hero.none{background:rgba(100,116,139,.08);border-color:rgba(100,116,139,.3);}
-.adm-hero .ic{font-size:26px;flex:none;}
+.adm-hero .ic{flex:none;display:flex;align-items:center;}
 .adm-hero .t{font-weight:800;color:var(--strong);font-size:14.5px;}
 .adm-hero .s{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.7;}
 .adm-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;
@@ -111,7 +116,7 @@ a.adm-stat{display:block;text-decoration:none;}
 box-shadow:0 1px 3px rgba(15,23,42,.08);transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer;}
 .adm-stat:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(2,6,23,.28);border-color:#2563eb;}
 .adm-stat .emo{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
-justify-content:center;font-size:20px;margin-bottom:10px;}
+justify-content:center;margin-bottom:10px;color:var(--strong);}
 .adm-stat .num{font-size:24px;font-weight:800;color:#2563eb;font-variant-numeric:tabular-nums;}
 .adm-stat .lbl{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;}
 
@@ -122,7 +127,7 @@ justify-content:center;font-size:20px;margin-bottom:10px;}
 /* chips filter */
 .adm-chips{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
 .adm-chip{border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;
-padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;transition:.2s;}
+padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px;}
 .adm-chip:hover{color:var(--strong);border-color:#2563eb;}
 .adm-chip.on{background:rgba(37,99,235,.15);border-color:rgba(37,99,235,.5);color:#93c5fd;}
 .adm-light .adm-chip.on{color:#1d4ed8;}
@@ -155,7 +160,7 @@ letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;}
 .adm-table tbody tr{cursor:pointer;transition:background .15s;}
 .adm-table tr:hover td{background:rgba(37,99,235,.05);}
 .adm-table tr.adm-row-live td{background:rgba(34,197,94,.07);}
-.adm-st{border-radius:999px;padding:4px 12px;font-size:10.5px;font-weight:800;white-space:nowrap;}
+.adm-st{border-radius:999px;padding:4px 12px;font-size:10.5px;font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
 .adm-st.done{background:rgba(100,116,139,.15);color:#64748b;}
 .adm-st.live{background:rgba(34,197,94,.15);color:#4ade80;}
 .adm-st.next{background:rgba(37,99,235,.12);color:#93c5fd;}
@@ -169,7 +174,7 @@ letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;}
 .adm-trf-item .dt{font-size:11px;color:var(--muted);}
 .adm-empty{background:var(--card);border:1px dashed var(--border);border-radius:14px;
 padding:26px 18px;text-align:center;color:var(--muted);font-size:14px;margin-bottom:20px;}
-.adm-empty .big{font-size:30px;margin-bottom:8px;}
+.adm-empty .big{display:flex;justify-content:center;margin-bottom:8px;}
 
 /* modal detail ruangan */
 .adm-overlay{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(3px);
@@ -179,7 +184,8 @@ display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px
 border:1px solid var(--border);border-radius:16px;padding:22px;animation:admUp .25s ease both;}
 .adm-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px;}
 .adm-modal-header h3{color:var(--strong);font-size:17px;font-weight:800;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.adm-close{background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;}
+.adm-close{background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;padding:4px;border-radius:6px;transition:.2s;}
+.adm-close:hover{background:rgba(100,116,139,.15);color:var(--strong);}
 .adm-modal-sub{font-size:12px;color:var(--muted);margin-bottom:12px;}
 .adm-badge{border-radius:999px;padding:4px 12px;font-size:10.5px;font-weight:800;}
 .adm-badge.free{background:rgba(34,197,94,.15);color:#4ade80;}
@@ -341,11 +347,11 @@ export default function AdminDashboard() {
     : [];
 
   const statCards = [
-    { emo: '🎓', bg: 'rgba(139,92,246,.15)', num: stats.classes, lbl: 'Kelas', to: '/admin/classes' },
-    { emo: '👩‍🏫', bg: 'rgba(34,197,94,.15)', num: stats.teachers, lbl: 'Guru', to: '/admin/teachers' },
-    { emo: '🧑‍🎓', bg: 'rgba(234,179,8,.15)', num: stats.students, lbl: 'Siswa', to: '/admin/students' },
-    { emo: '🚪', bg: 'rgba(249,115,22,.15)', num: stats.rooms, lbl: 'Ruangan', to: '/admin/rooms' },
-    { emo: '📅', bg: 'rgba(37,99,235,.15)', num: stats.today, lbl: 'Jadwal Hari Ini', to: '/admin/schedules' },
+    { icon: <School size={20} />, bg: 'rgba(139,92,246,.15)', num: stats.classes, lbl: 'Kelas', to: '/admin/classes' },
+    { icon: <UserCheck size={20} />, bg: 'rgba(34,197,94,.15)', num: stats.teachers, lbl: 'Guru', to: '/admin/teachers' },
+    { icon: <Users size={20} />, bg: 'rgba(234,179,8,.15)', num: stats.students, lbl: 'Siswa', to: '/admin/students' },
+    { icon: <DoorOpen size={20} />, bg: 'rgba(249,115,22,.15)', num: stats.rooms, lbl: 'Ruangan', to: '/admin/rooms' },
+    { icon: <CalendarDays size={20} />, bg: 'rgba(37,99,235,.15)', num: stats.today, lbl: 'Jadwal Hari Ini', to: '/admin/schedules' },
   ];
 
   return (
@@ -353,7 +359,10 @@ export default function AdminDashboard() {
       <style>{css}</style>
 
       <div className="adm-head adm-anim">
-        <h2>{greeting}, Admin Kurikulum 👋</h2>
+        <h2>
+          {greeting}, Admin Kurikulum 
+          <Hand size={20} style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }} />
+        </h2>
         <div className="adm-clock">
           {lastUpdated && (
             <span className="adm-upd">
@@ -361,17 +370,19 @@ export default function AdminDashboard() {
             </span>
           )}
           <button className={`adm-refresh ${spinning ? 'spin' : ''}`} onClick={manualRefresh} title="Muat ulang data sekarang">
-            <span className="ic">⟳</span> Refresh
+            <RefreshCw size={14} className="ic" /> Refresh
           </button>
           {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-          <span className="chip">🕐 {timeLabel}</span>
+          <span className="chip">
+            <Clock size={14} style={{ marginRight: 4 }} /> {timeLabel}
+          </span>
         </div>
       </div>
 
       {/* ===== banner "sekarang" ===== */}
       {ongoing.length > 0 ? (
         <div className="adm-hero live adm-anim" style={{ animationDelay: '.05s' }}>
-          <div className="ic">🟢</div>
+          <Circle size={26} fill="#22c55e" color="#22c55e" className="ic" />
           <div>
             <div className="t"><span className="adm-pulse" />{ongoing.length} pelajaran sedang berlangsung sekarang</div>
             <div className="s">
@@ -384,7 +395,7 @@ export default function AdminDashboard() {
         </div>
       ) : nextItem ? (
         <div className="adm-hero next adm-anim" style={{ animationDelay: '.05s' }}>
-          <div className="ic">⏰</div>
+          <Timer size={26} color="#2563eb" className="ic" />
           <div>
             <div className="t">
               Berikutnya: {fmtTime(nextItem.start_time)} — {nextItem.subject?.name} ({nextItem.class?.name})
@@ -396,7 +407,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="adm-hero none adm-anim" style={{ animationDelay: '.05s' }}>
-          <div className="ic">🌤️</div>
+          <Coffee size={26} color="#64748b" className="ic" />
           <div>
             <div className="t">Tidak ada jadwal hari ini.</div>
             <div className="s">Semua ruangan tersedia — waktu yang pas untuk penataan jadwal minggu depan.</div>
@@ -418,7 +429,9 @@ export default function AdminDashboard() {
       <div className="adm-stats">
         {statCards.map((c, i) => (
           <Link to={c.to} className="adm-stat adm-anim" key={c.lbl} style={{ animationDelay: `${.15 + i * .06}s` }} title={`Buka halaman ${c.lbl}`}>
-            <div className="emo" style={{ background: c.bg }}>{c.emo}</div>
+            <div className="emo" style={{ background: c.bg }}>
+              {c.icon}
+            </div>
             <div className="num"><CountUp value={c.num} /></div>
             <div className="lbl">{c.lbl} →</div>
           </Link>
@@ -427,7 +440,7 @@ export default function AdminDashboard() {
 
       {/* ===== status ruangan: filter chips + kartu klikabel ===== */}
       <div className="adm-sec adm-anim" style={{ animationDelay: '.2s' }}>
-        🚪 Status Ruangan
+        <DoorOpen size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> Status Ruangan
         <div className="adm-chips">
           <button className={`adm-chip ${roomFilter === 'kosong' ? 'on' : ''}`} onClick={() => setRoomFilter('kosong')}>
             Kosong · {emptyRooms.length}
@@ -444,7 +457,13 @@ export default function AdminDashboard() {
 
       {topRooms.length === 0 ? (
         <div className="adm-empty">
-          <div className="big">{roomFilter === 'dipakai' ? '🎉' : '😴'}</div>
+          <div className="big">
+            {roomFilter === 'dipakai' ? (
+              <CheckCircle size={32} color="#22c55e" />
+            ) : (
+              <Moon size={32} color="#64748b" />
+            )}
+          </div>
           {roomFilter === 'dipakai'
             ? 'Tidak ada ruangan yang sedang dipakai sekarang.'
             : roomFilter === 'kosong'
@@ -471,13 +490,13 @@ export default function AdminDashboard() {
       {/* ===== jadwal hari ini: tab filter + baris klikabel ===== */}
       <div className="adm-card adm-anim" style={{ animationDelay: '.3s' }}>
         <div className="adm-card-h">
-          📅 Jadwal Hari Ini — {today}
+          <Calendar size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> Jadwal Hari Ini — {today}
           <div className="adm-chips">
             <button className={`adm-chip ${schedFilter === 'all' ? 'on' : ''}`} onClick={() => setSchedFilter('all')}>
               Semua · {withStatus.length}
             </button>
             <button className={`adm-chip ${schedFilter === 'live' ? 'on' : ''}`} onClick={() => setSchedFilter('live')}>
-              ● Berlangsung · {ongoing.length}
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} /> Berlangsung · {ongoing.length}
             </button>
             <button className={`adm-chip ${schedFilter === 'next' ? 'on' : ''}`} onClick={() => setSchedFilter('next')}>
               Akan Datang · {upcoming.length}
@@ -515,7 +534,9 @@ export default function AdminDashboard() {
                     <td>{s.room?.name || '-'}</td>
                     <td>
                       <span className={`adm-st ${s.st}`}>
-                        {s.st === 'done' ? 'Selesai' : s.st === 'live' ? '● Berlangsung' : 'Akan datang'}
+                        {s.st === 'done' ? 'Selesai' : s.st === 'live' ? (
+                          <><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} /> Berlangsung</>
+                        ) : 'Akan datang'}
                       </span>
                     </td>
                   </tr>
@@ -534,7 +555,9 @@ export default function AdminDashboard() {
 
       {/* ===== perpindahan terbaru ===== */}
       <div className="adm-card adm-anim" style={{ animationDelay: '.35s' }}>
-        <div className="adm-card-h">🔔 Perpindahan Ruangan Terbaru</div>
+        <div className="adm-card-h">
+          <Bell size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> Perpindahan Ruangan Terbaru
+        </div>
         <div className="adm-trf">
           {transfers.length === 0 ? (
             <div className="adm-trf-item">Belum ada perpindahan ruangan.</div>
@@ -561,12 +584,14 @@ export default function AdminDashboard() {
           <div className="adm-modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="adm-modal-header">
               <h3>
-                🚪 {viewRoom.name}
+                <DoorOpen size={18} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> {viewRoom.name}
                 <span className={`adm-badge ${roomNow(viewRoom) === 'dipakai' ? 'busy' : 'free'}`}>
                   {roomNow(viewRoom) === 'dipakai' ? 'Dipakai sekarang' : 'Kosong sekarang'}
                 </span>
               </h3>
-              <button className="adm-close" onClick={() => setViewRoom(null)} type="button">✕</button>
+              <button className="adm-close" onClick={() => setViewRoom(null)} type="button" title="Tutup">
+                <X size={18} />
+              </button>
             </div>
             <div className="adm-modal-sub">Jumlah jadwal per hari minggu ini — hari ini disorot biru.</div>
 
@@ -592,7 +617,9 @@ export default function AdminDashboard() {
                     <span>{s.teacher?.user?.name || '-'}</span>
                   </span>
                   <span className={`adm-st ${s.st}`}>
-                    {s.st === 'done' ? 'Selesai' : s.st === 'live' ? '● Berlangsung' : 'Akan datang'}
+                    {s.st === 'done' ? 'Selesai' : s.st === 'live' ? (
+                      <><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} /> Berlangsung</>
+                    ) : 'Akan datang'}
                   </span>
                 </div>
               ))

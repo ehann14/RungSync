@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Calendar } from 'lucide-react';
 import api from '../../services/api';
 import ScheduleFormModal from '../../components/ScheduleFormModal';
 import PageLoader from '../../components/PageLoader';
@@ -252,7 +253,9 @@ export default function Schedules() {
                 shown.map((s) => (
                   <tr key={s.id} className={isLive(s) ? 'rsx-live' : ''}>
                     <td>{s.day}</td>
-                    <td className="rsx-date-cell">📅 {fmtDate(dateForDay(s.day))}</td>
+                    <td className="rsx-date-cell" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Calendar size={14} /> {fmtDate(dateForDay(s.day))}
+                    </td>
                     <td>
                       {fmtTime(s.start_time)}–{fmtTime(s.end_time)}
                       {isLive(s) && <span className="rsx-live-chip"><span className="rsx-live-dot" />Berlangsung</span>}

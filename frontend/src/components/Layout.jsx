@@ -1,30 +1,35 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, User, Calendar, DoorOpen, UserCheck,
+  GraduationCap, School, BookOpen, ArrowLeftRight,
+  Zap, LogOut, CalendarDays, Clock, Moon, Sun, Menu
+} from 'lucide-react';
 import api from '../services/api';
 
 /* ============ Menu per role ============ */
 const MENUS = {
   admin: [
-    { label: 'Dashboard', to: '/admin/dashboard', icon: '📊' },
-    { label: 'Profil Saya', to: '/admin/profile', icon: '👤' },
-    { label: 'Manajemen Jadwal', to: '/admin/schedules', icon: '📅' },
-    { label: 'Ruangan', to: '/admin/rooms', icon: '🚪' },
-    { label: 'Guru', to: '/admin/teachers', icon: '🧑🏫' },
-    { label: 'Siswa', to: '/admin/students', icon: '🧑‍🎓' },
-    { label: 'Kelas', to: '/admin/classes', icon: '🎓' },
-    { label: 'Mata Pelajaran', to: '/admin/subjects', icon: '📚' },
-    { label: 'Perpindahan', to: '/admin/room-transfers', icon: '🔁' },
+    { label: 'Dashboard', to: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
+    { label: 'Profil Saya', to: '/admin/profile', icon: <User size={18} /> },
+    { label: 'Manajemen Jadwal', to: '/admin/schedules', icon: <Calendar size={18} /> },
+    { label: 'Ruangan', to: '/admin/rooms', icon: <DoorOpen size={18} /> },
+    { label: 'Guru', to: '/admin/teachers', icon: <UserCheck size={18} /> },
+    { label: 'Siswa', to: '/admin/students', icon: <GraduationCap size={18} /> },
+    { label: 'Kelas', to: '/admin/classes', icon: <School size={18} /> },
+    { label: 'Mata Pelajaran', to: '/admin/subjects', icon: <BookOpen size={18} /> },
+    { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
   ],
   guru: [
-    { label: 'Dashboard', to: '/teacher/dashboard', icon: '📊' },
-    { label: 'Profil Saya', to: '/teacher/profile', icon: '👤' },
-    { label: 'Jadwal Saya', to: '/teacher/schedule', icon: '📅' },
-    { label: 'Perpindahan Ruangan', to: '/teacher/room-transfers', icon: '🔁' },
+    { label: 'Dashboard', to: '/teacher/dashboard', icon: <LayoutDashboard size={18} /> },
+    { label: 'Profil Saya', to: '/teacher/profile', icon: <User size={18} /> },
+    { label: 'Jadwal Saya', to: '/teacher/schedule', icon: <Calendar size={18} /> },
+    { label: 'Perpindahan Ruangan', to: '/teacher/room-transfers', icon: <ArrowLeftRight size={18} /> },
   ],
   siswa: [
-    { label: 'Dashboard', to: '/student/dashboard', icon: '📊' },
-    { label: 'Profil Saya', to: '/student/profile', icon: '👤' },
-    { label: 'Jadwal Saya', to: '/student/schedule', icon: '📅' },
+    { label: 'Dashboard', to: '/student/dashboard', icon: <LayoutDashboard size={18} /> },
+    { label: 'Profil Saya', to: '/student/profile', icon: <User size={18} /> },
+    { label: 'Jadwal Saya', to: '/student/schedule', icon: <Calendar size={18} /> },
   ],
 };
 
@@ -34,7 +39,6 @@ const normalizeRole = (r) => {
   return 'admin';
 };
 
-// prefix path halaman profil sesuai role
 const profilePath = (role) =>
   role === 'guru' ? '/teacher/profile' : role === 'siswa' ? '/student/profile' : '/admin/profile';
 
@@ -52,7 +56,7 @@ color:#cbd5e1;text-decoration:none;font-size:13.5px;font-weight:600;transition:.
 .lay-link:hover{background:rgba(37,99,235,.15);color:#fff;}
 .lay-link.active{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .lay-logout{margin-top:12px;border:none;border-radius:10px;padding:12px;cursor:pointer;
-background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;font-weight:700;font-size:13px;}
+background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;}
 .lay-logout:hover{filter:brightness(1.1);}
 
 .lay-main{flex:1;margin-left:240px;display:flex;flex-direction:column;min-width:0;}
@@ -62,12 +66,12 @@ border-bottom:1px solid var(--header-line);}
 .lay-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .lay-header-right{display:flex;align-items:center;gap:10px;}
 .lay-burger{display:none;border:none;background:transparent;color:var(--header-text);
-font-size:20px;cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
-.lay-date{font-size:12.5px;opacity:.8;}
+cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
+.lay-date{font-size:12.5px;opacity:.8;display:flex;align-items:center;gap:6px;}
 .lay-clock{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;border-radius:999px;
-padding:6px 14px;font-size:12px;font-weight:700;white-space:nowrap;}
-.lay-theme{border:none;border-radius:10px;padding:6px 10px;cursor:pointer;font-size:14px;
-background:transparent;box-shadow:inset 0 0 0 1px var(--header-line);}
+padding:6px 14px;font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.lay-theme{border:none;border-radius:10px;padding:6px 10px;cursor:pointer;
+background:transparent;box-shadow:inset 0 0 0 1px var(--header-line);color:var(--header-text);display:flex;align-items:center;}
 .lay-role{background:#2563eb;color:#fff;border-radius:999px;padding:5px 12px;
 font-size:10.5px;font-weight:800;letter-spacing:.06em;}
 .lay-name{font-size:13px;font-weight:700;white-space:nowrap;}
@@ -78,6 +82,13 @@ text-decoration:none;cursor:pointer;transition:transform .18s;}
 .lay-content{flex:1;padding:22px;background:var(--content-bg);}
 .lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px;}
 .lay-scrim{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:60;}
+
+/* Atur ukuran dan perilaku ikon SVG agar konsisten */
+.lay-link svg, .lay-logout svg, .lay-header svg, .lay-logo svg {
+  width: 18px; height: 18px; flex-shrink: 0; color: currentColor;
+}
+.lay-logo svg { width: 22px; height: 22px; }
+.lay-clock svg, .lay-date svg { width: 16px; height: 16px; }
 
 @media (max-width:900px){
   .lay-sidebar{width:260px;transform:translateX(-105%);transition:transform .25s ease;
@@ -149,7 +160,9 @@ export default function Layout() {
       {menuOpen && <div className="lay-scrim" onClick={() => setMenuOpen(false)} />}
 
       <aside className="lay-sidebar">
-        <div className="lay-logo">⚡ RungSync</div>
+        <div className="lay-logo">
+          <Zap /> RungSync
+        </div>
         <nav className="lay-nav">
           {menus.map((m) => (
             <NavLink
@@ -158,19 +171,27 @@ export default function Layout() {
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) => 'lay-link' + (isActive ? ' active' : '')}
             >
-              <span>{m.icon}</span> {m.label}
+              {m.icon} <span>{m.label}</span>
             </NavLink>
           ))}
         </nav>
-        <button className="lay-logout" onClick={handleLogout}>🚪 Logout</button>
+        <button className="lay-logout" onClick={handleLogout}>
+          <LogOut /> Logout
+        </button>
       </aside>
 
       <div className="lay-main">
         <header className="lay-header">
           <div className="lay-header-left">
-            <button className="lay-burger" onClick={() => setMenuOpen(true)} title="Buka menu">☰</button>
-            <span className="lay-date">📅 {dateLabel}</span>
-            <span className="lay-clock">🕐 {timeLabel}</span>
+            <button className="lay-burger" onClick={() => setMenuOpen(true)} title="Buka menu">
+              <Menu size={20} />
+            </button>
+            <span className="lay-date">
+              <CalendarDays /> {dateLabel}
+            </span>
+            <span className="lay-clock">
+              <Clock /> {timeLabel}
+            </span>
           </div>
           <div className="lay-header-right">
             <button
@@ -178,7 +199,7 @@ export default function Layout() {
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
               title="Ganti tema"
             >
-              {theme === 'light' ? '🌙' : '☀️'}
+              {theme === 'light' ? <Moon /> : <Sun />}
             </button>
             <span className="lay-role">{role.toUpperCase()}</span>
             <span className="lay-name">{user.name}</span>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Search, Circle, X, Calendar, Check } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -84,16 +85,16 @@ const css = `
 .rsx-legend .g{color:#4ade80;} .rsx-legend .y{color:#facc15;} .rsx-legend .r{color:#f87171;}
 .rsx-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
 .rsx-search-wrap{flex:1;min-width:220px;position:relative;}
-.rsx-search-wrap .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.6;}
+.rsx-search-wrap .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.6;color:var(--muted);}
 .rsx-search{width:100%;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);
-border-radius:10px;padding:10px 12px 10px 34px;font-size:13px;outline:none;}
+border-radius:10px;padding:10px 12px 10px 38px;font-size:13px;outline:none;}
 .rsx-search:focus{border-color:#2563eb;}
 .rsx-select{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);
 border-radius:10px;padding:10px 12px;font-size:13px;outline:none;min-width:160px;}
 .rsx-select:focus{border-color:#2563eb;}
 .rsx-count{font-size:11.5px;color:var(--muted);width:100%;}
 .rsx-btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
-.rsx-btn-primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:4px 14px rgba(37,99,235,.35);box-shadow:0 4px 14px rgba(37,99,235,.35);}
+.rsx-btn-primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .rsx-btn-primary:hover{filter:brightness(1.1);}
 .rsx-btn-edit{background:var(--edit-bg);color:var(--edit-text);border:1px solid var(--edit-border);}
 .rsx-btn-danger{background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;}
@@ -122,8 +123,9 @@ gap:4px;font-size:10px;font-weight:800;border:1px solid transparent;padding:0 8p
 .rsx-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;}
 .rsx-modal{width:560px;max-width:100%;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:22px;}
 .rsx-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-.rsx-modal-header h3{color:var(--text-strong);font-size:17px;font-weight:700;margin:0;}
-.rsx-close{background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;}
+.rsx-modal-header h3{color:var(--text-strong);font-size:17px;font-weight:700;margin:0;display:flex;align-items:center;}
+.rsx-close{background:transparent;border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;padding:4px;border-radius:6px;transition:.2s;}
+.rsx-close:hover{background:rgba(100,116,139,.15);color:var(--text-strong);}
 .rsx-form-group{margin-bottom:12px;}
 .rsx-form-group label{display:block;font-size:12px;color:var(--label);margin-bottom:6px;font-weight:600;}
 .rsx-input{width:100%;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;}
@@ -163,7 +165,6 @@ export default function AdminRooms() {
   const [viewRoom, setViewRoom] = useState(null);
   const [now, setNow] = useState(() => new Date());
 
-  //  Tick setiap 30 detik agar "Status Saat Ini" berubah otomatis tanpa reload
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(t);
@@ -192,16 +193,13 @@ export default function AdminRooms() {
     return { cls: 'part', txt: `${n}/${total}` };
   };
 
-  // ✅ BARU: status dihitung real-time dari jadwal, bukan dari kolom status di database
   const getCurrentStatus = (roomId) => {
-    const currentDay = DAY_NAMES[now.getDay()]; // 0 = Minggu
+    const currentDay = DAY_NAMES[now.getDay()];
     const currentMin = now.getHours() * 60 + now.getMinutes();
-
     const used = schedules.some((s) => {
       if (s.room_id !== roomId || s.day !== currentDay) return false;
       return currentMin >= toMin(s.start_time) && currentMin < toMin(s.end_time);
     });
-
     return used ? 'dipakai' : 'kosong';
   };
 
@@ -217,10 +215,8 @@ export default function AdminRooms() {
       default:          list = [...list].sort(cmpName);
     }
     return list;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rooms, schedules, query, sortBy, statusFilter, now]);
 
-  // ===== semua hook sudah dijalankan, baru early return =====
   if (loading) return <PageLoader text="Memuat data ruangan…" />;
 
   const openCreate = () => { setRoomModal({ mode: 'create' }); setName(''); setError(''); };
@@ -256,14 +252,26 @@ export default function AdminRooms() {
       </div>
 
       <div className="rsx-legend">
-        Kepadatan per hari: <b className="g">🟢 kosong</b> · <b className="y">🟡 sebagian</b> · <b className="r">🔴 penuh</b> — klik <b>Jadwal</b> untuk rincian.
+        Kepadatan per hari:{' '}
+        <b className="g" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <Circle size={12} fill="currentColor" /> kosong
+        </b>{' '}
+        ·{' '}
+        <b className="y" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <Circle size={12} fill="currentColor" /> sebagian
+        </b>{' '}
+        ·{' '}
+        <b className="r" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <Circle size={12} fill="currentColor" /> penuh
+        </b>{' '}
+        — klik <b>Jadwal</b> untuk rincian.
         <br />
         <span style={{ fontSize: '10.5px' }}>Senin = 11 slot (s.d. 15.40) · Sel–Jum = 10 slot (s.d. 15.00)</span>
       </div>
 
       <div className="rsx-toolbar">
         <div className="rsx-search-wrap">
-          <span className="ic">🔍</span>
+          <Search size={16} className="ic" />
           <input
             className="rsx-search"
             placeholder="Cari ruangan… mis. RPL 1, Teori 12"
@@ -319,7 +327,8 @@ export default function AdminRooms() {
                               className={`rm-chip ${b.cls}`}
                               title={`${d} (s.d. ${d === 'Senin' ? '15.40' : '15.00'}): ${b.cls === 'free' ? 'kosong' : `${n}/${max} slot terisi`}`}
                             >
-                              <span className="d">{d.slice(0, 2)}</span>{b.cls === 'free' ? '✓' : b.cls === 'full' ? '✕' : n}
+                              <span className="d">{d.slice(0, 2)}</span>
+                              {b.cls === 'free' ? <Check size={12} /> : b.cls === 'full' ? <X size={12} /> : n}
                             </span>
                           );
                         })}
@@ -343,7 +352,7 @@ export default function AdminRooms() {
           <div className="rsx-modal" style={{ width: 440 }} onMouseDown={(e) => e.stopPropagation()}>
             <div className="rsx-modal-header">
               <h3>{roomModal.mode === 'edit' ? 'Edit Ruangan' : 'Tambah'}</h3>
-              <button className="rsx-close" onClick={() => setRoomModal(null)} type="button">✕</button>
+              <button className="rsx-close" onClick={() => setRoomModal(null)} type="button"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="rsx-form-group">
@@ -363,8 +372,11 @@ export default function AdminRooms() {
         <div className="rsx-overlay" onMouseDown={() => setViewRoom(null)}>
           <div className="rsx-modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="rsx-modal-header">
-              <h3>📅 Jadwal Ruangan — {viewRoom.name}</h3>
-              <button className="rsx-close" onClick={() => setViewRoom(null)} type="button">✕</button>
+              <h3>
+                <Calendar size={18} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} />
+                Jadwal Ruangan — {viewRoom.name}
+              </h3>
+              <button className="rsx-close" onClick={() => setViewRoom(null)} type="button"><X size={18} /></button>
             </div>
 
             {DAYS.map((d) => {

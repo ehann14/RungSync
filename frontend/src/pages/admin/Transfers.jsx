@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ArrowLeftRight } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -40,7 +41,7 @@ const css = `
 --th-bg:#132340;--th-text:#8ab4f8;--row-line:#16263f;--row-hover:rgba(37,99,235,.06);}
 .atr.atr-light{--card:#ffffff;--card-border:#e2e8f0;--text:#334155;--text-strong:#0f172a;--muted:#64748b;
 --th-bg:#f1f5f9;--th-text:#1d4ed8;--row-line:#e2e8f0;--row-hover:rgba(37,99,235,.05);}
-.atr h2{font-size:22px;font-weight:800;color:var(--text-strong);margin:0 0 18px;}
+.atr h2{font-size:22px;font-weight:800;color:var(--text-strong);margin:0 0 18px;display:flex;align-items:center;gap:8px;}
 .atr-card{background:var(--card);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;
 box-shadow:0 1px 3px rgba(15,23,42,.08);}
 .atr-table-wrap{overflow-x:auto;}
@@ -79,7 +80,6 @@ export default function AdminTransfers() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      // endpoint admin yang benar (bukan /room-transfers tanpa prefix)
       const res = await api.get('/admin/room-transfers');
       setRows(res.data?.data || res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
@@ -93,7 +93,9 @@ export default function AdminTransfers() {
     <div className={`atr ${theme === 'light' ? 'atr-light' : ''}`}>
       <style>{css}</style>
 
-      <h2>Monitoring Perpindahan Ruangan 🔁</h2>
+      <h2>
+        Monitoring Perpindahan Ruangan <ArrowLeftRight size={20} />
+      </h2>
 
       <div className="atr-card">
         <div className="atr-table-wrap">
