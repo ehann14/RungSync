@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Search, ChevronDown, X } from 'lucide-react';
 
 function useAppTheme() {
   const detect = () => {
@@ -58,12 +59,49 @@ color:#fca5a5;border-radius:8px;padding:10px 12px;font-size:12.5px;margin-bottom
 .sfm-overlay:not(.sfm-dark) .sfm-error{background:rgba(239,68,68,.08);color:#b91c1c;}
 .sfm-submit{border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;
 cursor:pointer;background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;
-box-shadow:0 4px 14px rgba(37,99,235,.35);}
+box-shadow:0 4px 14px rgba(37,99,235,.35);width:100%;}
 .sfm-submit:hover{filter:brightness(1.1);}
 .sfm-submit:disabled{opacity:.6;cursor:wait;}
+
+/* ===== Searchable Dropdown ===== */
+.sfm-searchable{position:relative;}
+.sfm-searchable-btn{width:100%;background:var(--inp-bg);border:1px solid var(--inp-border);
+color:var(--inp-text);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;
+display:flex;align-items:center;justify-content:space-between;gap:8px;
+cursor:pointer;transition:.2s;text-align:left;}
+.sfm-searchable-btn:hover{border-color:#2563eb;}
+.sfm-searchable-btn:focus,.sfm-searchable-btn.open{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+.sfm-searchable-btn .placeholder{color:var(--muted);}
+.sfm-searchable-btn .selected-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sfm-searchable-btn .chevron{flex-shrink:0;transition:transform .2s;}
+.sfm-searchable-btn.open .chevron{transform:rotate(180deg);}
+
+.sfm-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:200;
+background:var(--card);border:1px solid var(--border);border-radius:10px;
+box-shadow:0 10px 30px rgba(2,6,23,.4);overflow:hidden;
+animation:sfmDropIn .15s ease both;}
+@keyframes sfmDropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.sfm-dropdown-search{display:flex;align-items:center;gap:8px;
+padding:8px 10px;border-bottom:1px solid var(--border);background:var(--inp-bg);}
+.sfm-dropdown-search svg{color:var(--muted);flex-shrink:0;}
+.sfm-dropdown-input{flex:1;background:transparent;border:none;color:var(--inp-text);
+font-size:13px;outline:none;padding:4px 0;}
+.sfm-dropdown-input::placeholder{color:var(--muted);}
+
+.sfm-dropdown-list{max-height:200px;overflow-y:auto;padding:4px;}
+.sfm-dropdown-item{padding:9px 12px;border-radius:6px;font-size:13px;color:var(--inp-text);
+cursor:pointer;transition:.15s;}
+.sfm-dropdown-item:hover{background:rgba(37,99,235,.15);color:#93c5fd;}
+.sfm-dropdown-item.active{background:rgba(37,99,235,.25);color:#93c5fd;font-weight:700;}
+.sfm-dropdown-empty{padding:14px;text-align:center;color:var(--muted);font-size:12.5px;}
+
+.sfm-dropdown-list::-webkit-scrollbar{width:6px;}
+.sfm-dropdown-list::-webkit-scrollbar-track{background:transparent;}
+.sfm-dropdown-list::-webkit-scrollbar-thumb{background:var(--inp-border);border-radius:3px;}
 `;
 
-const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
 /* grid jam: Senin s.d. 15.40 (11 slot), Sel–Jum s.d. 15.00 (10 slot) */
 const JP_MIN = 40;
@@ -107,6 +145,100 @@ const emptyForm = {
   subject_id: '',
   room_id: '',
 };
+
+/* ===== Komponen Searchable Dropdown ===== */
+function SearchableSelect({ label, hint, options, value, onChange, placeholder, getLabel, disabled }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const wrapRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Tutup dropdown saat klik di luar
+  useEffect(() => {
+    const handler = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        setOpen(false);
+        setQuery('');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Focus input saat dropdown terbuka
+  useEffect(() => {
+    if (open && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [open]);
+
+  const filtered = options.filter((opt) =>
+    getLabel(opt).toLowerCase().includes(query.toLowerCase())
+  );
+
+  const selectedLabel = value ? getLabel(options.find((o) => String(o.id) === String(value)) || {}) : '';
+
+  return (
+    <div className="sfm-group sfm-searchable" ref={wrapRef}>
+      <label>{label}</label>
+      <button
+        type="button"
+        disabled={disabled}
+        className={`sfm-searchable-btn ${open ? 'open' : ''}`}
+        onClick={() => setOpen(!open)}
+      >
+        <span className={selectedLabel ? 'selected-text' : 'placeholder'}>
+          {selectedLabel || placeholder}
+        </span>
+        <ChevronDown size={16} className="chevron" />
+      </button>
+
+      {open && (
+        <div className="sfm-dropdown">
+          <div className="sfm-dropdown-search">
+            <Search size={14} />
+            <input
+              ref={inputRef}
+              type="text"
+              className="sfm-dropdown-input"
+              placeholder="Ketik untuk mencari..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {query && (
+              <X
+                size={14}
+                style={{ cursor: 'pointer', color: 'var(--muted)', flexShrink: 0 }}
+                onClick={() => setQuery('')}
+              />
+            )}
+          </div>
+          <div className="sfm-dropdown-list">
+            {filtered.length === 0 ? (
+              <div className="sfm-dropdown-empty">Tidak ada hasil</div>
+            ) : (
+              filtered.map((opt) => (
+                <div
+                  key={opt.id}
+                  className={`sfm-dropdown-item ${String(value) === String(opt.id) ? 'active' : ''}`}
+                  onClick={() => {
+                    onChange(opt.id);
+                    setOpen(false);
+                    setQuery('');
+                  }}
+                >
+                  {getLabel(opt)}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {hint && <div className="sfm-hint">{hint}</div>}
+    </div>
+  );
+}
 
 export default function ScheduleFormModal({
   open, initial, onClose, onSubmit,
@@ -158,9 +290,8 @@ export default function ScheduleFormModal({
   const subjectOptions = selectedTeacher && specialties.length ? specialties : subjects;
 
   /* pilih guru → reset mapel; kalau keahlian cuma 1, langsung terisi */
-  const handleTeacherChange = (e) => {
-    const tid = e.target.value;
-    const t = teachers.find((x) => String(x.id) === tid);
+  const handleTeacherChange = (tid) => {
+    const t = teachers.find((x) => String(x.id) === String(tid));
     const specs = t
       ? (t.subjects?.length ? t.subjects : (t.subject ? [t.subject] : []))
       : [];
@@ -251,44 +382,52 @@ export default function ScheduleFormModal({
             </select>
           </div>
 
-          <div className="sfm-group">
-            <label>Kelas</label>
-            <select className="sfm-select" value={form.class_id} onChange={set('class_id')}>
-              <option value="">— pilih —</option>
-              {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
+          {/* ✅ Searchable: Kelas */}
+          <SearchableSelect
+            label="Kelas"
+            options={classes}
+            value={form.class_id}
+            onChange={(v) => setForm({ ...form, class_id: v })}
+            placeholder="Cari kelas..."
+            getLabel={(c) => c.name}
+          />
 
-          <div className="sfm-group">
-            <label>Guru</label>
-            <select className="sfm-select" value={form.teacher_id} onChange={handleTeacherChange}>
-              <option value="">— pilih —</option>
-              {teachers.map((t) => <option key={t.id} value={t.id}>{t.user?.name}</option>)}
-            </select>
-          </div>
+          {/* ✅ Searchable: Guru */}
+          <SearchableSelect
+            label="Guru"
+            options={teachers}
+            value={form.teacher_id}
+            onChange={handleTeacherChange}
+            placeholder="Cari nama guru..."
+            getLabel={(t) => t.user?.name || '-'}
+          />
 
-          <div className="sfm-group">
-            <label>Mata Pelajaran</label>
-            <select className="sfm-select" value={form.subject_id} onChange={set('subject_id')}>
-              <option value="">— pilih —</option>
-              {subjectOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-            <div className="sfm-hint">
-              {selectedTeacher
+          {/* ✅ Searchable: Mata Pelajaran */}
+          <SearchableSelect
+            label="Mata Pelajaran"
+            options={subjectOptions}
+            value={form.subject_id}
+            onChange={(v) => setForm({ ...form, subject_id: v })}
+            placeholder="Cari mata pelajaran..."
+            getLabel={(s) => s.name}
+            hint={
+              selectedTeacher
                 ? (specialties.length
                     ? `Keahlian ${selectedTeacher.user?.name}: ${specialties.map((s) => s.name).join(', ')} — pilih salah satu.`
                     : 'Guru ini belum punya keahlian terdaftar — semua mapel ditampilkan.')
-                : 'Pilih guru terlebih dahulu — mapel akan menyesuaikan keahlian guru.'}
-            </div>
-          </div>
+                : 'Pilih guru terlebih dahulu — mapel akan menyesuaikan keahlian guru.'
+            }
+          />
 
-          <div className="sfm-group">
-            <label>Ruangan</label>
-            <select className="sfm-select" value={form.room_id} onChange={set('room_id')}>
-              <option value="">— pilih —</option>
-              {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
-          </div>
+          {/* ✅ Searchable: Ruangan */}
+          <SearchableSelect
+            label="Ruangan"
+            options={rooms}
+            value={form.room_id}
+            onChange={(v) => setForm({ ...form, room_id: v })}
+            placeholder="Cari ruangan..."
+            getLabel={(r) => r.name}
+          />
 
           {error && <div className="sfm-error">{error}</div>}
 

@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, User, Calendar, DoorOpen, UserCheck,
   GraduationCap, School, BookOpen, ArrowLeftRight,
-  Zap, LogOut, CalendarDays, Clock, Moon, Sun, Menu
+  LogOut, CalendarDays, Clock, Moon, Sun, Menu
 } from 'lucide-react';
 import api from '../services/api';
 import { clearUserCache } from './ProtectedRoute';
@@ -52,7 +52,10 @@ const css = `
 
 .lay-sidebar{width:240px;position:fixed;top:0;left:0;bottom:0;z-index:70;
 background:linear-gradient(180deg,#0d1930,#0a1225);display:flex;flex-direction:column;padding:18px 14px;}
-.lay-logo{color:#38bdf8;font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px;padding:6px 10px 18px;}
+
+/* ✅ UPDATE: Styling khusus untuk logo gambar di sidebar */
+.lay-logo{display:flex;align-items:center;justify-content:center;padding:6px 10px 18px;}
+.lay-logo img{max-width:120px;height:auto;object-fit:contain;user-select:none;}
 .lay-nav{flex:1;display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
 .lay-link{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;
 color:#cbd5e1;text-decoration:none;font-size:13.5px;font-weight:600;transition:.2s;}
@@ -86,10 +89,10 @@ text-decoration:none;cursor:pointer;transition:transform .18s;}
 .lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px;}
 .lay-scrim{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:60;}
 
-.lay-link svg, .lay-logout svg, .lay-header svg, .lay-logo svg {
+/* Atur ukuran dan perilaku ikon SVG agar konsisten */
+.lay-link svg, .lay-logout svg, .lay-header svg {
   width: 18px; height: 18px; flex-shrink: 0; color: currentColor;
 }
-.lay-logo svg { width: 22px; height: 22px; }
 .lay-clock svg, .lay-date svg { width: 16px; height: 16px; }
 
 @media (max-width:900px){
@@ -175,9 +178,11 @@ export default function Layout() {
       {menuOpen && <div className="lay-scrim" onClick={() => setMenuOpen(false)} />}
 
       <aside className="lay-sidebar">
+        {/* ✅ DIGANTI: Menggunakan gambar logo.png */}
         <div className="lay-logo">
-          <Zap /> RungSync
+          <img src="/logo.png" alt="RungSync Logo" />
         </div>
+        
         <nav className="lay-nav">
           {menus.map((m) => (
             <NavLink

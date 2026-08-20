@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, Search } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -90,6 +90,20 @@ border-radius:999px;padding:6px 13px;font-size:11.5px;font-weight:700;cursor:poi
 .rsx-reset-note{color:var(--muted);font-size:11px;margin:0 0 16px;}
 .rsx-reset-actions{display:flex;gap:10px;}
 .rsx-reset-actions .rsx-btn{flex:1;}
+
+/* ✅ FITUR PENCARIAN */
+.rsx-search-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.rsx-search-wrap{position:relative;flex:1;min-width:240px;}
+.rsx-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.rsx-search-input{width:100%;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);
+border-radius:10px;padding:10px 36px 10px 38px;font-size:13px;outline:none;transition:.2s;}
+.rsx-search-input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+.rsx-search-input::placeholder{color:var(--muted);}
+.rsx-search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;
+border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;padding:4px;border-radius:6px;transition:.2s;}
+.rsx-search-clear:hover{color:var(--text-strong);background:rgba(100,116,139,.15);}
+.rsx-search-count{font-size:12px;color:var(--muted);white-space:nowrap;}
+.rsx-search-count b{color:var(--text-strong);}
 `;
 
 export default function Teachers() {
@@ -104,6 +118,9 @@ export default function Teachers() {
   const [error, setError] = useState('');
   const [resetInfo, setResetInfo] = useState(null);
   const [resetting, setResetting] = useState(false);
+  
+  // ✅ State untuk pencarian
+  const [searchQuery, setSearchQuery] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -187,6 +204,16 @@ export default function Teachers() {
     }
   };
 
+  // ✅ Logika pencarian: cari di nama, email, dan NIP
+  const filteredTeachers = teachers.filter((t) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase().trim();
+    const name = (t.user?.name || '').toLowerCase();
+    const email = (t.user?.email || '').toLowerCase();
+    const nip = (t.nip || '').toLowerCase();
+    return name.includes(q) || email.includes(q) || nip.includes(q);
+  });
+
   return (
     <div className={`rsx-page ${theme === 'light' ? 'rsx-light' : ''}`}>
       <style>{css}</style>
@@ -196,6 +223,30 @@ export default function Teachers() {
         <button className="rsx-btn rsx-btn-primary" onClick={openCreate}>+ Tambah Guru</button>
       </div>
 
+      {/* ✅ Bar pencarian */}
+      <div className="rsx-search-bar">
+        <div className="rsx-search-wrap">
+          <Search size={16} className="rsx-search-icon" />
+          <input
+            className="rsx-search-input"
+            type="text"
+            placeholder="Cari guru berdasarkan nama, email, atau NIP..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="rsx-search-clear" onClick={() => setSearchQuery('')} title="Hapus pencarian">
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <div className="rsx-search-count">
+            Ditemukan <b>{filteredTeachers.length}</b> dari <b>{teachers.length}</b> guru
+          </div>
+        )}
+      </div>
+
       <div className="rsx-table-card">
         <div className="rsx-table-wrap">
           <table className="rsx-table">
@@ -203,10 +254,12 @@ export default function Teachers() {
               <tr><th>Nama</th><th>Email</th><th>NIP</th><th>Tugas Mapel (maks 3)</th><th>Aksi</th></tr>
             </thead>
             <tbody>
-              {teachers.length === 0 ? (
-                <tr><td className="rsx-empty" colSpan="5">Tidak ada guru.</td></tr>
+              {filteredTeachers.length === 0 ? (
+                <tr><td className="rsx-empty" colSpan="5">
+                  {searchQuery ? `Tidak ada guru yang cocok dengan "${searchQuery}".` : 'Tidak ada guru.'}
+                </td></tr>
               ) : (
-                teachers.map((t) => (
+                filteredTeachers.map((t) => (
                   <tr key={t.id}>
                     <td>{t.user?.name}</td>
                     <td>{t.user?.email}</td>

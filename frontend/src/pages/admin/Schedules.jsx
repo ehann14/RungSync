@@ -6,7 +6,7 @@ import PageLoader from '../../components/PageLoader';
 
 const fmtTime = (t) => (t ? t.slice(0, 5).replace(':', '.') : '');
 const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + m; };
-const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 const MAX_ROWS = 20;
 
 function weekMonday() {
@@ -18,6 +18,7 @@ function weekMonday() {
   start.setHours(0, 0, 0, 0);
   return start;
 }
+
 const dateForDay = (day) => {
   const idx = DAYS.indexOf(day);
   if (idx < 0) return null;
@@ -25,6 +26,7 @@ const dateForDay = (day) => {
   d.setDate(d.getDate() + idx);
   return d;
 };
+
 const fmtDate = (d) =>
   d ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
@@ -94,11 +96,29 @@ background:rgba(34,197,94,.15);color:#4ade80;margin-left:8px;}
 .rsx-table-wrap{overflow-x:auto;}
 .rsx-table{width:100%;border-collapse:collapse;}
 .rsx-table th{background:var(--th-bg);color:var(--th-text);text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;}
-.rsx-table td{padding:13px 16px;border-top:1px solid var(--row-line);color:var(--text);font-size:13.5px;}
+
+/* ✅ PERBAIKAN: Semua cell sejajar vertikal di tengah */
+.rsx-table td{
+  padding:13px 16px;
+  border-top:1px solid var(--row-line);
+  color:var(--text);
+  font-size:13.5px;
+  vertical-align: middle !important;
+}
+
 .rsx-table tr:hover td{background:var(--row-hover);}
 .rsx-table tr.rsx-live td{background:rgba(34,197,94,.07);}
 .rsx-empty{text-align:center;color:var(--muted);padding:24px 0 !important;}
-.rsx-date-cell{color:var(--muted);font-size:12px;white-space:nowrap;}
+
+/* ✅ Cell tanggal juga sejajar di tengah */
+.rsx-date-cell{
+  color:var(--muted);
+  font-size:12px;
+  white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
 `;
 
 export default function Schedules() {
@@ -109,7 +129,7 @@ export default function Schedules() {
   const [subjects, setSubjects] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [, setTick] = useState(0); // auto-refresh status tiap 30 detik
+  const [, setTick] = useState(0);
   const [filters, setFilters] = useState({ day: '', class_id: '', teacher_id: '', room_id: '' });
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -141,26 +161,25 @@ export default function Schedules() {
 
   useEffect(() => { load(); }, [load]);
 
-  // ===== semua hook dijalankan dulu, baru early return =====
   if (loading) return <PageLoader text="Memuat manajemen jadwal…" />;
 
   const now = new Date();
   const nowM = now.getHours() * 60 + now.getMinutes();
   const today = now.toLocaleDateString('id-ID', { weekday: 'long' });
-  const tIdx = DAYS.indexOf(today); // -1 kalau Minggu
+  const tIdx = DAYS.indexOf(today);
 
   const isLive = (s) => s.day === today && toMin(s.start_time) <= nowM && nowM < toMin(s.end_time);
   const isPastToday = (s) => s.day === today && toMin(s.end_time) <= nowM;
 
-  /* urutan "terdekat": berlangsung → hari ini berikutnya → besok → dst. */
   const dayOffset = (name) => {
     const d = DAYS.indexOf(name);
-    if (tIdx < 0) return d + 1;              // hari Minggu: semua dianggap mendatang
+    if (tIdx < 0) return d + 1;
     return (d - tIdx + 7) % 7;
   };
+  
   const rank = (s) => {
     const off = dayOffset(s.day);
-    if (off === 0) return isLive(s) ? 0 : 1; // sedang berlangsung paling atas
+    if (off === 0) return isLive(s) ? 0 : 1;
     return 1 + off;
   };
 
@@ -174,12 +193,10 @@ export default function Schedules() {
 
   let view;
   if (!filters.day) {
-    // mode "Semua hari": sembunyikan jam hari ini yang sudah selesai, urutkan terdekat, maks 20
     view = baseFiltered
       .filter((s) => !isPastToday(s))
       .sort((a, b) => rank(a) - rank(b) || (a.start_time || '').localeCompare(b.start_time || ''));
   } else {
-    // mode hari tertentu: tampilkan penuh hari itu (termasuk yang sudah lewat), urut jam
     view = baseFiltered.sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
   }
 
@@ -253,7 +270,7 @@ export default function Schedules() {
                 shown.map((s) => (
                   <tr key={s.id} className={isLive(s) ? 'rsx-live' : ''}>
                     <td>{s.day}</td>
-                    <td className="rsx-date-cell" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <td className="rsx-date-cell">
                       <Calendar size={14} /> {fmtDate(dateForDay(s.day))}
                     </td>
                     <td>

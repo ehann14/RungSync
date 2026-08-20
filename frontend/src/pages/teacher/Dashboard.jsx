@@ -6,7 +6,7 @@ import {
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
-const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 const fmtTime = (t) => (t ? String(t).slice(0, 5).replace(':', '.') : '');
 const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + m; };
 const todayISO = () => new Date().toISOString().slice(0, 10);

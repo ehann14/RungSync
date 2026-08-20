@@ -15,7 +15,7 @@ const fmtDateTime = (d) => (d ? new Date(d).toLocaleString('id-ID') : '');
 const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + m; };
 
 /* ===== batas tampil dashboard (biar tidak membludak saat data banyak) ===== */
-const MAX_ROOM_CARDS = 6;    // maksimal kartu ruangan yang ditampilkan
+const MAX_ROOM_CARDS = 5;    // maksimal kartu ruangan yang ditampilkan
 const MAX_SCHEDULE_ROWS = 7; // maksimal baris tabel jadwal hari ini
 const MAX_TRANSFERS = 5;     // maksimal daftar perpindahan ruangan
 const AUTO_REFRESH_MS = 60000; // auto-refresh data tiap 60 detik
