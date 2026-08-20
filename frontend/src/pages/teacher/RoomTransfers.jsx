@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import api from '../../services/api';
 
 const fmtTime = (t) => (t ? String(t).slice(0, 5).replace(':', '.') : '');
@@ -59,7 +60,7 @@ box-shadow:0 1px 3px rgba(15,23,42,.08);}
 .trf-dark .trf-badge.approved{color:#4ade80;}
 .trf-dark .trf-badge.rejected{color:#fca5a5;}
 .trf-meta{font-size:12.5px;color:var(--muted);line-height:1.7;}
-.trf-arrow{color:#2563eb;font-weight:800;}
+.trf-arrow{color:#2563eb;font-weight:800;display:inline-flex;align-items:center;}
 .trf-empty{background:var(--card);border:1px solid var(--border);border-radius:14px;
 color:var(--muted);padding:22px 18px;font-size:14px;}
 .trf-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.45);color:#fca5a5;
@@ -104,7 +105,6 @@ export default function TeacherRoomTransfers() {
     setLoading(true);
     setError('');
     try {
-      // ===== semua endpoint MILIK GURU, bukan punya admin =====
       const [tr, sch, rm] = await Promise.all([
         api.get('/teacher/room-transfers'),
         api.get('/teacher/schedule'),
@@ -134,7 +134,7 @@ export default function TeacherRoomTransfers() {
       await api.post('/teacher/room-transfer', {
         schedule_id: Number(form.schedule_id),
         room_id: Number(form.room_id),
-        to_room_id: Number(form.room_id), // antisipasi bila backend memakai nama kolom lain
+        to_room_id: Number(form.room_id),
         reason: form.reason || null,
       });
       setModalOpen(false);
@@ -188,7 +188,9 @@ export default function TeacherRoomTransfers() {
                 <div className="trf-meta">
                   {t.schedule?.day} · {fmtTime(t.schedule?.start_time)}–{fmtTime(t.schedule?.end_time)}
                   <br />
-                  {from} <span className="trf-arrow">→</span> {to}
+                  {from}{' '}
+                  <ArrowRight size={14} className="trf-arrow" style={{ display: 'inline-flex', verticalAlign: 'middle', margin: '0 4px' }} />{' '}
+                  {to}
                   {t.reason ? <><br />Alasan: {t.reason}</> : null}
                 </div>
               </div>

@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { 
+  Circle, Clock, Calendar, Coffee, CalendarDays, 
+  Sun, GraduationCap, DoorOpen, ArrowLeftRight, Hand 
+} from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -43,14 +47,14 @@ const css = `
 --th-bg:#f1f5f9;--th-text:#1d4ed8;--line:#e2e8f0;--hover:rgba(37,99,235,.05);}
 .tsd.tsd-dark{--card:#0d1930;--border:#1c2b45;--text:#e2e8f0;--strong:#f1f5f9;--muted:#64748b;
 --th-bg:#132340;--th-text:#8ab4f8;--line:#16263f;--hover:rgba(37,99,235,.06);}
-.tsd-greet{font-size:22px;font-weight:800;color:var(--strong);margin:0 0 4px;}
+.tsd-greet{font-size:22px;font-weight:800;color:var(--strong);margin:0 0 4px;display:flex;align-items:center;}
 .tsd-date{font-size:12.5px;color:var(--muted);margin:0 0 18px;}
 .tsd-banner{display:flex;align-items:center;gap:14px;border-radius:16px;padding:16px 18px;
 margin-bottom:20px;border:1px solid;animation:tsdIn .35s ease;}
 @keyframes tsdIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.tsd-banner .ic{font-size:26px;flex:none;}
+.tsd-banner .ic{flex:none;display:flex;align-items:center;}
 .tsd-banner .body{flex:1;min-width:0;}
-.tsd-banner .title{font-size:15px;font-weight:800;}
+.tsd-banner .title{font-size:15px;font-weight:800;display:flex;align-items:center;}
 .tsd-banner .sub{font-size:12.5px;margin-top:3px;line-height:1.6;}
 .tsd-banner .when{flex:none;font-weight:800;font-size:12px;border-radius:999px;padding:8px 14px;white-space:nowrap;}
 .tsd-ongoing{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);}
@@ -71,12 +75,12 @@ margin-right:6px;animation:tsdPulse 1.2s infinite;}
 .tsd-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px;}
 .tsd-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;
 display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(15,23,42,.08);}
-.tsd-stat .emo{font-size:22px;width:44px;height:44px;border-radius:12px;display:flex;
+.tsd-stat .emo{width:44px;height:44px;border-radius:12px;display:flex;
 align-items:center;justify-content:center;flex:none;}
 .tsd-stat .num{font-size:20px;font-weight:800;color:var(--strong);}
 .tsd-stat .lbl{font-size:11px;color:var(--muted);font-weight:600;}
 .tsd-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
-.tsd-card-h{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;color:var(--strong);font-size:15px;}
+.tsd-card-h{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;color:var(--strong);font-size:15px;display:flex;align-items:center;}
 .tsd-today-list{display:flex;flex-direction:column;gap:10px;padding:16px 18px;}
 .tsd-item{display:flex;align-items:center;gap:14px;border:1px solid var(--border);
 border-radius:12px;padding:12px 14px;background:var(--hover);flex-wrap:wrap;}
@@ -91,7 +95,7 @@ border-radius:12px;padding:12px 14px;background:var(--hover);flex-wrap:wrap;}
 .tsd-st.live{background:rgba(34,197,94,.15);color:#15803d;}
 .tsd-st.next{background:rgba(37,99,235,.12);color:#1d4ed8;}
 .tsd-dark .tsd-st.live{color:#4ade80;} .tsd-dark .tsd-st.next{color:#93c5fd;}
-.tsd-move{font-size:11px;color:#b45309;background:rgba(234,179,8,.15);border-radius:999px;padding:3px 10px;}
+.tsd-move{font-size:11px;color:#b45309;background:rgba(234,179,8,.15);border-radius:999px;padding:3px 10px;display:flex;align-items:center;}
 .tsd-table-wrap{overflow-x:auto;}
 .tsd-table{width:100%;border-collapse:collapse;}
 .tsd-table th{background:var(--th-bg);color:var(--th-text);text-align:left;font-size:11px;
@@ -201,22 +205,34 @@ export default function TeacherDashboard() {
     now.getHours() < 19 ? 'Selamat sore' : 'Selamat malam';
 
   const whenText = (r) => {
-    if (r.type === 'ongoing') return '🟢 Sekarang';
+    if (r.type === 'ongoing') return <><Circle size={14} fill="#22c55e" color="#22c55e" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> Sekarang</>;
     if (r.type === 'today') {
       const m = toMin(r.item.start_time) - nowM;
-      return m <= 90 ? `⏰ ${m} mnt lagi` : `⏰ Hari ini`;
+      return <><Clock size={14} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> {m <= 90 ? `${m} mnt lagi` : 'Hari ini'}</>;
     }
-    return r.diff === 1 ? '📅 Besok' : `📅 ${r.diff} hari lagi`;
+    return <><Calendar size={14} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> {r.diff === 1 ? 'Besok' : `${r.diff} hari lagi`}</>;
   };
 
   const bannerContent = (r) => {
     const s = r.item;
-    const move = roomOverride[s.id] ? ` · 🔁 pindah ke ${roomOverride[s.id]}` : '';
+    const move = roomOverride[s.id] ? ` · pindah ke ${roomOverride[s.id]}` : '';
     const sub = `${s.day}, ${fmtTime(s.start_time)}–${fmtTime(s.end_time)} · ${s.subject?.name || 'Mapel'} · ` +
       `Kelas ${s.class?.name || '-'} · Ruangan ${s.roomName}${move}`;
-    if (r.type === 'ongoing') return { icon: '🟢', title: `Sedang berlangsung: ${s.subject?.name} — Kelas ${s.class?.name}`, sub };
-    if (r.type === 'today') return { icon: '⏰', title: `Jangan lupa! Mengajar ${fmtTime(s.start_time)} di Kelas ${s.class?.name}`, sub };
-    return { icon: '📌', title: `Jadwal berikutnya: ${s.day} — Kelas ${s.class?.name} (${s.roomName})`, sub };
+    if (r.type === 'ongoing') return { 
+      icon: <Circle size={26} fill="#22c55e" color="#22c55e" />, 
+      title: `Sedang berlangsung: ${s.subject?.name} — Kelas ${s.class?.name}`, 
+      sub 
+    };
+    if (r.type === 'today') return { 
+      icon: <Clock size={26} color="#eab308" />, 
+      title: `Jangan lupa! Mengajar ${fmtTime(s.start_time)} di Kelas ${s.class?.name}`, 
+      sub 
+    };
+    return { 
+      icon: <Calendar size={26} color="#2563eb" />, 
+      title: `Jadwal berikutnya: ${s.day} — Kelas ${s.class?.name} (${s.roomName})`, 
+      sub 
+    };
   };
 
   return (
@@ -224,7 +240,7 @@ export default function TeacherDashboard() {
       <style>{css}</style>
 
       <h2 className="tsd-greet">
-        {greeting}, {me?.name ? me.name.split(',')[0] : 'Bapak/Ibu Guru'} 👋
+        {greeting}, {me?.name ? me.name.split(',')[0] : 'Bapak/Ibu Guru'} <Hand size={20} style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }} />
       </h2>
       <p className="tsd-date">
         {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} — semoga harimu menyenangkan!
@@ -247,7 +263,7 @@ export default function TeacherDashboard() {
       )}
       {!reminder && (
         <div className="tsd-banner tsd-future">
-          <div className="ic">🌤️</div>
+          <div className="ic"><Coffee size={26} color="#64748b" /></div>
           <div className="body">
             <div className="title">Tidak ada jadwal mengajar minggu ini.</div>
             <div className="sub">Waktu yang pas untuk menyiapkan materi berikutnya!</div>
@@ -257,25 +273,28 @@ export default function TeacherDashboard() {
 
       <div className="tsd-stats">
         <div className="tsd-stat">
-          <div className="emo" style={{ background: 'rgba(37,99,235,.12)' }}>🗓️</div>
+          <div className="emo" style={{ background: 'rgba(37,99,235,.12)' }}><CalendarDays size={22} color="#2563eb" /></div>
           <div><div className="num">{schedules.length}</div><div className="lbl">Slot Jadwal Minggu Ini</div></div>
         </div>
         <div className="tsd-stat">
-          <div className="emo" style={{ background: 'rgba(34,197,94,.12)' }}>☀️</div>
+          <div className="emo" style={{ background: 'rgba(34,197,94,.12)' }}><Sun size={22} color="#22c55e" /></div>
           <div><div className="num">{todayList.length}</div><div className="lbl">Jadwal Hari Ini</div></div>
         </div>
         <div className="tsd-stat">
-          <div className="emo" style={{ background: 'rgba(234,179,8,.15)' }}>🎓</div>
+          <div className="emo" style={{ background: 'rgba(234,179,8,.15)' }}><GraduationCap size={22} color="#eab308" /></div>
           <div><div className="num">{uniqueClasses.length}</div><div className="lbl">Kelas Diampu</div></div>
         </div>
         <div className="tsd-stat">
-          <div className="emo" style={{ background: 'rgba(168,85,247,.12)' }}>🚪</div>
+          <div className="emo" style={{ background: 'rgba(168,85,247,.12)' }}><DoorOpen size={22} color="#a855f7" /></div>
           <div><div className="num">{uniqueRooms.length}</div><div className="lbl">Ruangan Dipakai</div></div>
         </div>
       </div>
 
       <div className="tsd-card">
-        <div className="tsd-card-h">📅 Jadwal Hari Ini — {today}</div>
+        <div className="tsd-card-h">
+          <Calendar size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> 
+          Jadwal Hari Ini — {today}
+        </div>
         {todayList.length === 0 ? (
           <div className="tsd-empty">Tidak ada jadwal untuk hari ini. {reminder?.type === 'future' ? `Jadwal berikutnya: ${reminder.item.day}.` : ''}</div>
         ) : (
@@ -287,7 +306,12 @@ export default function TeacherDashboard() {
                   <b>{s.subject?.name || 'Mata Pelajaran'} — Kelas {s.class?.name || '-'}</b>
                   <span>Ruangan {s.roomName}{roomOverride[s.id] ? ' (pindahan)' : ''}</span>
                 </div>
-                {roomOverride[s.id] && <span className="tsd-move">🔁 {roomOverride[s.id]}</span>}
+                {roomOverride[s.id] && (
+                  <span className="tsd-move">
+                    <ArrowLeftRight size={12} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> 
+                    {roomOverride[s.id]}
+                  </span>
+                )}
                 <span className={`tsd-st ${s.st}`}>
                   {s.st === 'done' ? 'Selesai' : s.st === 'live' ? 'Berlangsung' : 'Akan datang'}
                 </span>
@@ -298,7 +322,10 @@ export default function TeacherDashboard() {
       </div>
 
       <div className="tsd-card">
-        <div className="tsd-card-h">🗓️ Jadwal Minggu Ini</div>
+        <div className="tsd-card-h">
+          <CalendarDays size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> 
+          Jadwal Minggu Ini
+        </div>
         <div className="tsd-table-wrap">
           <table className="tsd-table">
             <thead>

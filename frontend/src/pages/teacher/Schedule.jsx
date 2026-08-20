@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Calendar } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -77,7 +78,7 @@ box-shadow:0 1px 3px rgba(15,23,42,.08);}
 .tsc-when{min-width:170px;}
 .tsc-day{display:inline-block;background:rgba(37,99,235,.12);color:#2563eb;border-radius:999px;
 padding:4px 12px;font-size:11px;font-weight:800;margin-bottom:4px;}
-.tsc-date{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.tsc-date{font-size:11px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:4px;}
 .tsc-time{font-size:15px;font-weight:800;color:var(--strong);}
 .tsc-what{flex:1;min-width:200px;}
 .tsc-subject{font-size:15px;font-weight:700;color:var(--strong);}
@@ -164,7 +165,9 @@ export default function TeacherSchedule() {
             <div className="tsc-item" key={s.id}>
               <div className="tsc-when">
                 <span className="tsc-day">{s.day}</span>
-                <div className="tsc-date">📅 {fmtDateShort(dateForDay(s.day))}</div>
+                <div className="tsc-date">
+                  <Calendar size={14} /> {fmtDateShort(dateForDay(s.day))}
+                </div>
                 <div className="tsc-time">{fmtTime(s.start_time)}–{fmtTime(s.end_time)}</div>
               </div>
               <div className="tsc-what">

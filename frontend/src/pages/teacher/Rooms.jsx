@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DoorOpen } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -60,7 +61,7 @@ const css = `
 --th-bg:#f1f5f9;--th-text:#1d4ed8;--line:#e2e8f0;}
 .tr.tr-dark{--card:#0d1930;--border:#1c2b45;--text:#e2e8f0;--strong:#f1f5f9;--muted:#64748b;
 --th-bg:#132340;--th-text:#8ab4f8;--line:#16263f;}
-.tr h2{font-size:24px;font-weight:800;color:var(--strong);margin:0 0 6px;}
+.tr h2{font-size:24px;font-weight:800;color:var(--strong);margin:0 0 6px;display:flex;align-items:center;}
 .tr-sub{font-size:12px;color:var(--muted);margin:0 0 18px;}
 .tr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
 .tr-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;
@@ -83,7 +84,7 @@ box-shadow:0 1px 3px rgba(15,23,42,.08);}
 .tr-slot .w b{color:var(--strong);font-size:12.5px;}
 .tr-empty{background:var(--card);border:1px dashed var(--border);border-radius:14px;padding:26px 18px;
 text-align:center;color:var(--muted);font-size:14px;}
-.tr-empty .big{font-size:30px;margin-bottom:8px;}
+.tr-empty .big{display:flex;justify-content:center;margin-bottom:8px;}
 .tr-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.45);color:#fca5a5;
 border-radius:12px;padding:12px 16px;font-size:13px;margin-bottom:16px;}
 `;
@@ -109,7 +110,6 @@ export default function TeacherRooms() {
 
   useEffect(() => { load(); }, [load]);
 
-  /* semua hook dulu */
   const roomMap = useMemo(() => {
     const map = {};
     schedules.forEach((s) => {
@@ -146,14 +146,15 @@ export default function TeacherRooms() {
     return st;
   }, [roomMap, today, nowM]);
 
-  /* baru early return */
   if (loading) return <PageLoader text="Memuat status ruangan…" />;
 
   return (
     <div className={`tr ${theme === 'dark' ? 'tr-dark' : ''}`}>
       <style>{css}</style>
 
-      <h2>Status Ruangan Saya 🚪</h2>
+      <h2>
+        Status Ruangan Saya <DoorOpen size={20} style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 6 }} />
+      </h2>
       <p className="tr-sub">
         Daftar ruangan yang Anda pakai minggu ini · Hari ini: {today}, {fmtDateShort(dateForDay(today))}
       </p>
@@ -162,7 +163,9 @@ export default function TeacherRooms() {
 
       {roomMap.length === 0 ? (
         <div className="tr-empty">
-          <div className="big">🚪</div>
+          <div className="big">
+            <DoorOpen size={32} style={{ color: 'var(--muted)' }} />
+          </div>
           Belum ada jadwal mengajar yang terdaftar — tidak ada ruangan yang terpakai.
         </div>
       ) : (

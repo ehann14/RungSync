@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { RefreshCw, Info, Calendar } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -78,9 +79,9 @@ const css = `
 --label:#475569;--inp-bg:#ffffff;--inp-border:#cbd5e1;--th-bg:#f1f5f9;--th-text:#1d4ed8;--line:#e2e8f0;}
 .trf.trf-dark{--card:#0d1930;--border:#1c2b45;--text:#e2e8f0;--strong:#f1f5f9;--muted:#64748b;
 --label:#94a3b8;--inp-bg:#12203a;--inp-border:#24344f;--th-bg:#132340;--th-text:#8ab4f8;--line:#16263f;}
-.trf h2{font-size:24px;font-weight:800;color:var(--strong);margin:0 0 16px;}
+.trf h2{font-size:24px;font-weight:800;color:var(--strong);margin:0 0 16px;display:flex;align-items:center;}
 .trf-info{background:var(--card);border:1px solid var(--border);border-radius:14px;
-padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;}
+padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;display:flex;align-items:flex-start;}
 .trf-info b{color:var(--strong);}
 .trf-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
 .trf-card-h{padding:13px 18px;border-bottom:1px solid var(--line);font-weight:800;color:var(--strong);
@@ -92,7 +93,7 @@ letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;}
 .trf-table td{padding:12px 16px;border-top:1px solid var(--line);color:var(--text);font-size:13.5px;}
 .trf-table tr:hover td{background:rgba(37,99,235,.05);}
 .trf-day-cell b{display:block;color:var(--strong);}
-.trf-day-cell span{font-size:11px;color:var(--muted);}
+.trf-day-cell span{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
 .trf-empty{text-align:center;color:var(--muted);padding:22px 0 !important;}
 .trf-btn{border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;}
 .trf-btn-primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
@@ -121,7 +122,7 @@ color:var(--text);border-radius:8px;padding:9px 12px;font-size:13px;outline:none
 .trf-select:focus,.trf-input:focus{border-color:#2563eb;}
 .trf-hint{font-size:11px;color:var(--muted);margin-top:4px;}
 .trf-date-auto{background:var(--inp-bg);border:1px dashed #2563eb;border-radius:8px;
-padding:10px 12px;font-size:13px;font-weight:700;color:var(--strong);}
+padding:10px 12px;font-size:13px;font-weight:700;color:var(--strong);display:flex;align-items:center;}
 .trf-actions{display:flex;gap:10px;margin-top:14px;}
 .trf-actions .trf-btn{flex:1;}
 `;
@@ -170,7 +171,6 @@ export default function TeacherTransfer() {
 
   useEffect(() => { load(); }, [load]);
 
-  /* hook useCallback SEBELUM early return */
   const loadRooms = useCallback(async (schedule, date) => {
     setRoomsLoading(true);
     setRoomsError('');
@@ -194,7 +194,6 @@ export default function TeacherTransfer() {
     }
   }, []);
 
-  /* baru early return */
   if (loading) return <PageLoader text="Memuat perpindahan ruangan…" />;
 
   const openModal = (s) => {
@@ -252,18 +251,23 @@ export default function TeacherTransfer() {
     <div className={`trf ${theme === 'dark' ? 'trf-dark' : ''}`}>
       <style>{css}</style>
 
-      <h2>Pindah Ruangan 🔄</h2>
+      <h2>
+        Pindah Ruangan <RefreshCw size={20} style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 6 }} />
+      </h2>
 
       {error && <div className="trf-error">{error}</div>}
 
       <div className="trf-info">
-        ℹ️ Perpindahan hanya berlaku <b>1 kali pada tanggal yang dipilih</b>. Minggu
-        berikutnya jadwal otomatis kembali ke ruangan awal.
-        <br />
-        <span style={{ fontSize: '11px' }}>
-          Minggu aktif: {fmtDateShort(dateForDay('Senin'))} — {fmtDateShort(dateForDay('Sabtu'))}
-          {new Date().getDay() === 0 ? ' (otomatis minggu depan)' : ''}
-        </span>
+        <Info size={18} style={{ flexShrink: 0, marginTop: 2, marginRight: 10, color: 'var(--strong)' }} />
+        <div>
+          Perpindahan hanya berlaku <b>1 kali pada tanggal yang dipilih</b>. Minggu
+          berikutnya jadwal otomatis kembali ke ruangan awal.
+          <br />
+          <span style={{ fontSize: '11px' }}>
+            Minggu aktif: {fmtDateShort(dateForDay('Senin'))} — {fmtDateShort(dateForDay('Sabtu'))}
+            {new Date().getDay() === 0 ? ' (otomatis minggu depan)' : ''}
+          </span>
+        </div>
       </div>
 
       <div className="trf-card">
@@ -281,7 +285,9 @@ export default function TeacherTransfer() {
                   <tr key={s.id}>
                     <td className="trf-day-cell">
                       <b>{s.day}</b>
-                      <span>📅 {fmtDateShort(dateForDay(s.day))}</span>
+                      <span>
+                        <Calendar size={12} /> {fmtDateShort(dateForDay(s.day))}
+                      </span>
                     </td>
                     <td>{fmtTime(s.start_time)}–{fmtTime(s.end_time)}</td>
                     <td>{s.class?.name || '-'}</td>
@@ -341,7 +347,9 @@ export default function TeacherTransfer() {
             <form onSubmit={handleSubmit}>
               <div className="trf-group">
                 <label>Tanggal Berlaku (otomatis)</label>
-                <div className="trf-date-auto">📅 {fmtDateLong(nextOccurrence(modal.day))}</div>
+                <div className="trf-date-auto">
+                  <Calendar size={16} style={{ marginRight: 8 }} /> {fmtDateLong(nextOccurrence(modal.day))}
+                </div>
                 <div className="trf-hint">
                   Mengikuti hari mengajar terdekat dari jadwal ini — tidak perlu dipilih manual.
                 </div>
