@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import api from '../services/api';
 
-/* teacher/guru & student/siswa dianggap sama */
+/* ✅ Tambahan .trim() agar kebal terhadap spasi di database (misal: "guru ") */
 export const normalizeRole = (r) => {
-  const v = (r || '').toString().toLowerCase();
+  const v = (r || '').toString().toLowerCase().trim();
   if (v === 'teacher' || v === 'guru') return 'guru';
   if (v === 'student' || v === 'siswa') return 'siswa';
   if (v === 'admin') return 'admin';
@@ -65,11 +65,6 @@ export const clearUserCache = () => {
   userCache.loading = null;
 };
 
-/*
-  Pemakaian di App.jsx:
-    <ProtectedRoute><Layout /></ProtectedRoute>                  → cukup login
-    <ProtectedRoute roles={['teacher','guru']}>...</ProtectedRoute>  → khusus role
-*/
 export default function ProtectedRoute({ role, roles, allowed, children }) {
   const list = roles || allowed || (role ? [role] : null);
   const { user, loading } = useSharedUser();
@@ -81,14 +76,21 @@ export default function ProtectedRoute({ role, roles, allowed, children }) {
   if (!user) return <Navigate to="/login" replace />;
 
   const norm = normalizeRole(user.role);
-  if (!norm) return <Navigate to="/login" replace />;
+  
+  // ✅ Jika role tidak dikenali sama sekali, paksa logout
+  if (!norm) {
+    clearUserCache();
+    localStorage.removeItem('token');
+    return <Navigate to="/login" replace />;
+  }
 
   if (list) {
     const arr = Array.isArray(list) ? list : [list];
     const allowedNorm = arr.map(normalizeRole).filter(Boolean);
     const ok = allowedNorm.includes(norm);
+    
     if (!ok) {
-      // akses ditolak → lempar ke beranda rolenya sendiri (anti-loop, anti-nyasar)
+      // ✅ Akses ditolak → lempar ke beranda rolenya sendiri (anti-loop)
       return <Navigate to={HOME_BY_ROLE[norm] || '/login'} replace />;
     }
   }

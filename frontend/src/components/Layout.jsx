@@ -6,8 +6,17 @@ import {
   Zap, LogOut, CalendarDays, Clock, Moon, Sun, Menu
 } from 'lucide-react';
 import api from '../services/api';
+import { clearUserCache } from './ProtectedRoute';
 
-/* ============ Menu per role ============ */
+/* ============ Helper role yang AMAN ============ */
+const normalizeRole = (r) => {
+  const role = String(r || '').toLowerCase().trim();
+  if (role === 'teacher' || role === 'guru') return 'guru';
+  if (role === 'student' || role === 'siswa') return 'siswa';
+  if (role === 'admin') return 'admin';
+  return null;
+};
+
 const MENUS = {
   admin: [
     { label: 'Dashboard', to: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -31,12 +40,6 @@ const MENUS = {
     { label: 'Profil Saya', to: '/student/profile', icon: <User size={18} /> },
     { label: 'Jadwal Saya', to: '/student/schedule', icon: <Calendar size={18} /> },
   ],
-};
-
-const normalizeRole = (r) => {
-  if (r === 'teacher' || r === 'guru') return 'guru';
-  if (r === 'student' || r === 'siswa') return 'siswa';
-  return 'admin';
 };
 
 const profilePath = (role) =>
@@ -83,7 +86,6 @@ text-decoration:none;cursor:pointer;transition:transform .18s;}
 .lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px;}
 .lay-scrim{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:60;}
 
-/* Atur ukuran dan perilaku ikon SVG agar konsisten */
 .lay-link svg, .lay-logout svg, .lay-header svg, .lay-logo svg {
   width: 18px; height: 18px; flex-shrink: 0; color: currentColor;
 }
@@ -129,16 +131,29 @@ export default function Layout() {
 
   useEffect(() => {
     api.get('/me')
-      .then((res) => setUser(res.data?.data || res.data?.user || res.data))
-      .catch(() => navigate('/login'));
+      .then((res) => {
+        const userData = res.data?.data || res.data?.user || res.data;
+        setUser(userData);
+        
+        // ✅ SAFETY CHECK: Jika role tidak valid, paksa logout
+        const role = normalizeRole(userData?.role);
+        if (!role) {
+          handleLogout(); 
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        navigate('/login', { replace: true });
+      });
   }, [navigate]);
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
   const handleLogout = async () => {
     try { await api.post('/logout'); } catch { /* abaikan */ }
+    clearUserCache(); // ✅ Clear cache saat logout
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   if (!user) return <div className="lay-loading">Memuat…</div>;
@@ -201,7 +216,7 @@ export default function Layout() {
             >
               {theme === 'light' ? <Moon /> : <Sun />}
             </button>
-            <span className="lay-role">{role.toUpperCase()}</span>
+            <span className="lay-role">{role ? role.toUpperCase() : 'UNKNOWN'}</span>
             <span className="lay-name">{user.name}</span>
             <NavLink to={profilePath(role)} className="lay-avatar" title="Lihat profil">
               {(user.name || 'U').charAt(0).toUpperCase()}
