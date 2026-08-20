@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Calendar } from 'lucide-react';
 import api from '../../services/api';
 import ScheduleFormModal from '../../components/ScheduleFormModal';
 import PageLoader from '../../components/PageLoader';
@@ -8,27 +7,6 @@ const fmtTime = (t) => (t ? t.slice(0, 5).replace(':', '.') : '');
 const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + m; };
 const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 const MAX_ROWS = 20;
-
-function weekMonday() {
-  const now = new Date();
-  const todayIdx = (now.getDay() + 6) % 7;
-  const start = new Date(now);
-  start.setDate(now.getDate() - todayIdx);
-  if (todayIdx === 6) start.setDate(start.getDate() + 7);
-  start.setHours(0, 0, 0, 0);
-  return start;
-}
-
-const dateForDay = (day) => {
-  const idx = DAYS.indexOf(day);
-  if (idx < 0) return null;
-  const d = new Date(weekMonday());
-  d.setDate(d.getDate() + idx);
-  return d;
-};
-
-const fmtDate = (d) =>
-  d ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
 function useAppTheme() {
   const detect = () => {
@@ -96,8 +74,6 @@ background:rgba(34,197,94,.15);color:#4ade80;margin-left:8px;}
 .rsx-table-wrap{overflow-x:auto;}
 .rsx-table{width:100%;border-collapse:collapse;}
 .rsx-table th{background:var(--th-bg);color:var(--th-text);text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;}
-
-/* ✅ PERBAIKAN: Semua cell sejajar vertikal di tengah */
 .rsx-table td{
   padding:13px 16px;
   border-top:1px solid var(--row-line);
@@ -105,20 +81,9 @@ background:rgba(34,197,94,.15);color:#4ade80;margin-left:8px;}
   font-size:13.5px;
   vertical-align: middle !important;
 }
-
 .rsx-table tr:hover td{background:var(--row-hover);}
 .rsx-table tr.rsx-live td{background:rgba(34,197,94,.07);}
 .rsx-empty{text-align:center;color:var(--muted);padding:24px 0 !important;}
-
-/* ✅ Cell tanggal juga sejajar di tengah */
-.rsx-date-cell{
-  color:var(--muted);
-  font-size:12px;
-  white-space:nowrap;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
 `;
 
 export default function Schedules() {
@@ -167,6 +132,25 @@ export default function Schedules() {
   const nowM = now.getHours() * 60 + now.getMinutes();
   const today = now.toLocaleDateString('id-ID', { weekday: 'long' });
   const tIdx = DAYS.indexOf(today);
+
+  // Hitung tanggal untuk hari Senin - Jumat pada minggu berjalan
+  const getWeekDates = () => {
+    const dates = {};
+    const curr = new Date();
+    const day = curr.getDay(); // 0 (Minggu) - 6 (Sabtu)
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const monday = new Date(curr);
+    monday.setDate(curr.getDate() + diffToMonday);
+
+    DAYS.forEach((d, i) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      // Format: 23 Okt
+      dates[d] = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    });
+    return dates;
+  };
+  const weekDates = getWeekDates();
 
   const isLive = (s) => s.day === today && toMin(s.start_time) <= nowM && nowM < toMin(s.end_time);
   const isPastToday = (s) => s.day === today && toMin(s.end_time) <= nowM;
@@ -230,7 +214,7 @@ export default function Schedules() {
       <div className="rsx-filter-bar">
         <select className="rsx-select" value={filters.day} onChange={(e) => setFilters({ ...filters, day: e.target.value })}>
           <option value="">Semua hari</option>
-          {DAYS.map((d) => <option key={d} value={d}>{d} ({fmtDate(dateForDay(d))})</option>)}
+          {DAYS.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
         <select className="rsx-select" value={filters.class_id} onChange={(e) => setFilters({ ...filters, class_id: e.target.value })}>
           <option value="">Semua kelas</option>
@@ -260,18 +244,20 @@ export default function Schedules() {
           <table className="rsx-table">
             <thead>
               <tr>
-                <th>Hari</th><th>Tanggal</th><th>Jam</th><th>Kelas</th><th>Mata Pelajaran</th><th>Guru</th><th>Ruangan</th><th>Aksi</th>
+                <th>Hari & Tanggal</th><th>Jam</th><th>Kelas</th><th>Mata Pelajaran</th><th>Guru</th><th>Ruangan</th><th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {shown.length === 0 ? (
-                <tr><td className="rsx-empty" colSpan="8">Tidak ada jadwal yang cocok.</td></tr>
+                <tr><td className="rsx-empty" colSpan="7">Tidak ada jadwal yang cocok.</td></tr>
               ) : (
                 shown.map((s) => (
                   <tr key={s.id} className={isLive(s) ? 'rsx-live' : ''}>
-                    <td>{s.day}</td>
-                    <td className="rsx-date-cell">
-                      <Calendar size={14} /> {fmtDate(dateForDay(s.day))}
+                    <td>
+                      <span style={{ fontWeight: 600 }}>{s.day}</span>
+                      <span style={{ color: 'var(--muted)', fontSize: '11px', marginLeft: '8px' }}>
+                        {weekDates[s.day]}
+                      </span>
                     </td>
                     <td>
                       {fmtTime(s.start_time)}–{fmtTime(s.end_time)}

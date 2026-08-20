@@ -3,7 +3,7 @@ import { Search, Circle, X, Calendar, Check } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
-const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 const DAY_NAMES = ['Minggu', ...DAYS]; // index = new Date().getDay()
 const fmtTime = (t) => (t ? String(t).slice(0, 5).replace(':', '.') : '');
 const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + m; };

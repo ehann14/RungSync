@@ -5,6 +5,46 @@ import PageLoader from '../../components/PageLoader';
 
 const emptyForm = { name: '', email: '', password: '', nip: '', subject_ids: [] };
 
+/* ✅ FUNGSI GENERATE EMAIL YANG LEBIH PINTAR (VERSI FINAL) */
+const generateEmailFromName = (name) => {
+  if (!name || name.trim() === '') return '';
+
+  // 1. Pecah nama menjadi array kata-kata
+  let words = name.trim().split(/\s+/);
+
+  // 2. Daftar gelar depan yang harus diabaikan
+  const prefixTitles = ['dr.', 'dr', 'prof.', 'prof', 'ir.', 'ir', 'h.', 'h', 'hj.', 'hj', 'sdr.', 'sdri.', 'drg.', 'drg'];
+  
+  // 3. Hapus gelar di depan nama
+  while (words.length > 0 && prefixTitles.includes(words[0].toLowerCase())) {
+    words.shift();
+  }
+
+  // 4. Daftar gelar belakang yang harus diabaikan
+  const suffixTitles = [
+    's.pd', 's.pd.', 'm.pd', 'm.pd.', 
+    's.kom', 's.kom.', 'm.kom', 'm.kom.', 
+    's.t', 's.t.', 'm.t', 'm.t.', 
+    's.e', 's.e.', 'm.m', 'm.m.',
+    'dr.', 'ph.d', 'ph.d.'
+  ];
+
+  // 5. Hapus gelar di belakang nama
+  while (words.length > 0 && suffixTitles.includes(words[words.length - 1].toLowerCase())) {
+    words.pop();
+  }
+
+  // 6. Ambil maksimal 2 kata pertama dari nama yang sudah bersih
+  const cleanNameWords = words.slice(0, 2);
+  
+  // ✅ 7. Hapus semua tanda baca (koma, titik, dll) dari setiap kata, gabungkan, huruf kecil
+  const emailPrefix = cleanNameWords
+    .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Hapus semua karakter kecuali huruf & angka
+    .join('')
+    .toLowerCase();
+  
+  return `${emailPrefix}@rungsync.sch.id`;
+};
 function useAppTheme() {
   const detect = () => {
     const nodes = [document.documentElement, document.body];
@@ -119,7 +159,6 @@ export default function Teachers() {
   const [resetInfo, setResetInfo] = useState(null);
   const [resetting, setResetting] = useState(false);
   
-  // ✅ State untuk pencarian
   const [searchQuery, setSearchQuery] = useState('');
 
   const load = useCallback(async () => {
@@ -154,6 +193,18 @@ export default function Teachers() {
       if (!has && f.subject_ids.length >= 3) return f;
       return { ...f, subject_ids: has ? f.subject_ids.filter((x) => x !== id) : [...f.subject_ids, id] };
     });
+  };
+
+  /* ✅ Handler Nama: Auto generate email saat mengetik */
+  const handleNameChange = (e) => {
+    const newName = e.target.value;
+    const newEmail = generateEmailFromName(newName);
+    setForm({ ...form, name: newName, email: newEmail });
+  };
+
+  /* ✅ Handler Email: Tetap bisa diedit manual jika perlu */
+  const handleEmailChange = (e) => {
+    setForm({ ...form, email: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -204,7 +255,6 @@ export default function Teachers() {
     }
   };
 
-  // ✅ Logika pencarian: cari di nama, email, dan NIP
   const filteredTeachers = teachers.filter((t) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase().trim();
@@ -223,7 +273,6 @@ export default function Teachers() {
         <button className="rsx-btn rsx-btn-primary" onClick={openCreate}>+ Tambah Guru</button>
       </div>
 
-      {/* ✅ Bar pencarian */}
       <div className="rsx-search-bar">
         <div className="rsx-search-wrap">
           <Search size={16} className="rsx-search-icon" />
@@ -294,11 +343,22 @@ export default function Teachers() {
             <form onSubmit={handleSubmit}>
               <div className="rsx-form-group">
                 <label>Nama</label>
-                <input className="rsx-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <input 
+                  className="rsx-input" 
+                  value={form.name} 
+                  onChange={handleNameChange}
+                  placeholder="Contoh: Dr. Muhamad Ferhan Pratama S.Pd"
+                />
               </div>
               <div className="rsx-form-group">
                 <label>Email</label>
-                <input className="rsx-input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <input 
+                  className="rsx-input" 
+                  type="email" 
+                  value={form.email} 
+                  onChange={handleEmailChange}
+                  placeholder="auto-generated@rungsync.sch.id"
+                />
               </div>
               {!editing && (
                 <div className="rsx-form-group">
