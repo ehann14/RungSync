@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { 
+  Lock, Hand, Circle, Clock, Calendar, Coffee, 
+  CalendarDays, Sun, BookOpen, DoorOpen 
+} from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -61,14 +65,14 @@ const css = `
 --th-bg:#f1f5f9;--th-text:#1d4ed8;--line:#e2e8f0;--hover:rgba(37,99,235,.05);}
 .ssd.ssd-dark{--card:#0d1930;--border:#1c2b45;--text:#e2e8f0;--strong:#f1f5f9;--muted:#64748b;
 --th-bg:#132340;--th-text:#8ab4f8;--line:#16263f;--hover:rgba(37,99,235,.06);}
-.ssd-greet{font-size:22px;font-weight:800;color:var(--strong);margin:0 0 4px;}
+.ssd-greet{font-size:22px;font-weight:800;color:var(--strong);margin:0 0 4px;display:flex;align-items:center;}
 .ssd-sub{font-size:12.5px;color:var(--muted);margin:0 0 18px;}
 .ssd-banner{display:flex;align-items:center;gap:14px;border-radius:16px;padding:16px 18px;
 margin-bottom:20px;border:1px solid;animation:ssdIn .35s ease;}
 @keyframes ssdIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.ssd-banner .ic{font-size:26px;flex:none;}
+.ssd-banner .ic{flex:none;display:flex;align-items:center;}
 .ssd-banner .body{flex:1;min-width:0;}
-.ssd-banner .title{font-size:15px;font-weight:800;}
+.ssd-banner .title{font-size:15px;font-weight:800;display:flex;align-items:center;}
 .ssd-banner .sub{font-size:12.5px;margin-top:3px;line-height:1.6;}
 .ssd-banner .when{flex:none;font-weight:800;font-size:12px;border-radius:999px;padding:8px 14px;white-space:nowrap;}
 .ssd-ongoing{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);}
@@ -89,12 +93,12 @@ margin-right:6px;animation:ssdPulse 1.2s infinite;}
 .ssd-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px;}
 .ssd-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;
 display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(15,23,42,.08);}
-.ssd-stat .emo{font-size:22px;width:44px;height:44px;border-radius:12px;display:flex;
+.ssd-stat .emo{width:44px;height:44px;border-radius:12px;display:flex;
 align-items:center;justify-content:center;flex:none;}
 .ssd-stat .num{font-size:20px;font-weight:800;color:var(--strong);}
 .ssd-stat .lbl{font-size:11px;color:var(--muted);font-weight:600;}
 .ssd-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
-.ssd-card-h{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;color:var(--strong);font-size:15px;}
+.ssd-card-h{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;color:var(--strong);font-size:15px;display:flex;align-items:center;}
 .ssd-list{display:flex;flex-direction:column;gap:10px;padding:16px 18px;}
 .ssd-item{display:flex;align-items:center;gap:14px;border:1px solid var(--border);
 border-radius:12px;padding:12px 14px;background:var(--hover);flex-wrap:wrap;}
@@ -117,7 +121,7 @@ letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;}
 .ssd-table tr:hover td{background:var(--hover);}
 .ssd-empty{text-align:center;color:var(--muted);padding:22px 0 !important;}
 .ssd-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.45);color:#fca5a5;
-border-radius:12px;padding:12px 16px;font-size:13px;margin-bottom:16px;}
+border-radius:12px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;}
 `;
 
 export default function StudentDashboard() {
@@ -149,7 +153,10 @@ export default function StudentDashboard() {
       const status = schR.reason?.response?.status;
       if (status === 403) {
         setForbidden(true);
-        setError('🔒 Halaman ini khusus akun SISWA. Akun kamu tidak memiliki akses ke jadwal siswa.');
+        setError(
+          <><Lock size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> 
+          Halaman ini khusus akun SISWA. Akun kamu tidak memiliki akses ke jadwal siswa.</>
+        );
       } else {
         setError('Gagal memuat jadwal kelas. Coba muat ulang.');
       }
@@ -211,28 +218,42 @@ export default function StudentDashboard() {
     now.getHours() < 19 ? 'Selamat sore' : 'Selamat malam';
 
   const whenText = (r) => {
-    if (r.type === 'ongoing') return '🟢 Sekarang';
+    if (r.type === 'ongoing') return <><Circle size={14} fill="#22c55e" color="#22c55e" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> Sekarang</>;
     if (r.type === 'today') {
       const m = toMin(r.item.start_time) - nowM;
-      return m <= 90 ? `⏰ ${m} mnt lagi` : '⏰ Hari ini';
+      return <><Clock size={14} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> {m <= 90 ? `${m} mnt lagi` : 'Hari ini'}</>;
     }
-    return r.diff === 1 ? '📅 Besok' : `📅 ${r.diff} hari lagi`;
+    return <><Calendar size={14} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} /> {r.diff === 1 ? 'Besok' : `${r.diff} hari lagi`}</>;
   };
 
   const banner = (r) => {
     const s = r.item;
     const sub = `${s.day}, ${fmtTime(s.start_time)}–${fmtTime(s.end_time)} · ${s.subject?.name || 'Mapel'} · ` +
       `Kelas ${s.class?.name || '-'} · Ruangan ${s.room?.name || '-'}`;
-    if (r.type === 'ongoing') return { icon: '🟢', title: `Sedang berlangsung: ${s.subject?.name}`, sub };
-    if (r.type === 'today') return { icon: '⏰', title: `Jangan lupa! ${fmtTime(s.start_time)} pelajaran ${s.subject?.name}`, sub };
-    return { icon: '📌', title: `Pelajaran berikutnya: ${s.day} — ${s.subject?.name} (${s.room?.name})`, sub };
+    if (r.type === 'ongoing') return { 
+      icon: <Circle size={26} fill="#22c55e" color="#22c55e" />, 
+      title: `Sedang berlangsung: ${s.subject?.name}`, 
+      sub 
+    };
+    if (r.type === 'today') return { 
+      icon: <Clock size={26} color="#eab308" />, 
+      title: `Jangan lupa! ${fmtTime(s.start_time)} pelajaran ${s.subject?.name}`, 
+      sub 
+    };
+    return { 
+      icon: <Calendar size={26} color="#2563eb" />, 
+      title: `Pelajaran berikutnya: ${s.day} — ${s.subject?.name} (${s.room?.name})`, 
+      sub 
+    };
   };
 
   return (
     <div className={`ssd ${theme === 'dark' ? 'ssd-dark' : ''}`}>
       <style>{css}</style>
 
-      <h2 className="ssd-greet">{greeting}, {me?.name ? me.name.split(',')[0] : 'Siswa'} 👋</h2>
+      <h2 className="ssd-greet">
+        {greeting}, {me?.name ? me.name.split(',')[0] : 'Siswa'} <Hand size={20} style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }} />
+      </h2>
       <p className="ssd-sub">
         {className ? `Kelas ${className} · ` : ''}
         {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} — semangat belajarnya!
@@ -255,7 +276,7 @@ export default function StudentDashboard() {
       )}
       {!forbidden && !reminder && (
         <div className="ssd-banner ssd-future">
-          <div className="ic">🌤️</div>
+          <div className="ic"><Coffee size={26} color="#64748b" /></div>
           <div className="body">
             <div className="title">Belum ada jadwal untuk kelas kamu.</div>
             <div className="sub">Jadwal akan muncul setelah admin mengisinya.</div>
@@ -265,25 +286,28 @@ export default function StudentDashboard() {
 
       <div className="ssd-stats">
         <div className="ssd-stat">
-          <div className="emo" style={{ background: 'rgba(37,99,235,.12)' }}>🗓️</div>
+          <div className="emo" style={{ background: 'rgba(37,99,235,.12)' }}><CalendarDays size={22} color="#2563eb" /></div>
           <div><div className="num">{forbidden ? '–' : schedules.length}</div><div className="lbl">Slot Jadwal Minggu Ini</div></div>
         </div>
         <div className="ssd-stat">
-          <div className="emo" style={{ background: 'rgba(34,197,94,.12)' }}>☀️</div>
+          <div className="emo" style={{ background: 'rgba(34,197,94,.12)' }}><Sun size={22} color="#22c55e" /></div>
           <div><div className="num">{forbidden ? '–' : todayList.length}</div><div className="lbl">Jadwal Hari Ini</div></div>
         </div>
         <div className="ssd-stat">
-          <div className="emo" style={{ background: 'rgba(234,179,8,.15)' }}>📚</div>
+          <div className="emo" style={{ background: 'rgba(234,179,8,.15)' }}><BookOpen size={22} color="#eab308" /></div>
           <div><div className="num">{forbidden ? '–' : uniqueSubjects.length}</div><div className="lbl">Mata Pelajaran</div></div>
         </div>
         <div className="ssd-stat">
-          <div className="emo" style={{ background: 'rgba(168,85,247,.12)' }}>🚪</div>
+          <div className="emo" style={{ background: 'rgba(168,85,247,.12)' }}><DoorOpen size={22} color="#a855f7" /></div>
           <div><div className="num">{forbidden ? '–' : uniqueRooms.length}</div><div className="lbl">Ruangan Dipakai</div></div>
         </div>
       </div>
 
       <div className="ssd-card">
-        <div className="ssd-card-h">📅 Jadwal Hari Ini — {today} {dateForDay(today) ? `(${fmtDateShort(dateForDay(today))})` : ''}</div>
+        <div className="ssd-card-h">
+          <Calendar size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> 
+          Jadwal Hari Ini — {today} {dateForDay(today) ? `(${fmtDateShort(dateForDay(today))})` : ''}
+        </div>
         {forbidden ? (
           <div className="ssd-empty">Akses ditolak — halaman ini hanya untuk akun siswa.</div>
         ) : todayList.length === 0 ? (
@@ -309,7 +333,10 @@ export default function StudentDashboard() {
       </div>
 
       <div className="ssd-card">
-        <div className="ssd-card-h">🗓️ Jadwal Minggu Ini</div>
+        <div className="ssd-card-h">
+          <CalendarDays size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} /> 
+          Jadwal Minggu Ini
+        </div>
         <div className="ssd-table-wrap">
           <table className="ssd-table">
             <thead>
@@ -323,7 +350,13 @@ export default function StudentDashboard() {
               ) : (
                 sortedWeek.map((s) => (
                   <tr key={s.id}>
-                    <td>{s.day}<br /><span style={{ fontSize: 11, color: 'var(--muted)' }}>📅 {fmtDateShort(dateForDay(s.day))}</span></td>
+                    <td>
+                      {s.day}
+                      <br />
+                      <span style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Calendar size={12} /> {fmtDateShort(dateForDay(s.day))}
+                      </span>
+                    </td>
                     <td>{fmtTime(s.start_time)}–{fmtTime(s.end_time)}</td>
                     <td>{s.subject?.name || '-'}</td>
                     <td>{s.teacher?.user?.name || '-'}</td>
