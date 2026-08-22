@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MessageSquare } from 'lucide-react';
 import api from '../../services/api';
 
 const fmtTime = (t) => (t ? String(t).slice(0, 5).replace(':', '.') : '');
@@ -50,7 +50,7 @@ const css = `
 .trf-list{display:flex;flex-direction:column;gap:12px;}
 .trf-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;
 box-shadow:0 1px 3px rgba(15,23,42,.08);}
-.trf-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.trf-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
 .trf-subject{font-weight:800;color:var(--strong);font-size:14.5px;}
 .trf-badge{border-radius:999px;padding:4px 12px;font-size:11px;font-weight:800;}
 .trf-badge.pending{background:rgba(234,179,8,.15);color:#a16207;}
@@ -59,7 +59,7 @@ box-shadow:0 1px 3px rgba(15,23,42,.08);}
 .trf-dark .trf-badge.pending{color:#facc15;}
 .trf-dark .trf-badge.approved{color:#4ade80;}
 .trf-dark .trf-badge.rejected{color:#fca5a5;}
-.trf-meta{font-size:12.5px;color:var(--muted);line-height:1.7;}
+.trf-meta{font-size:12.5px;color:var(--muted);line-height:1.6;}
 .trf-arrow{color:#2563eb;font-weight:800;display:inline-flex;align-items:center;}
 .trf-empty{background:var(--card);border:1px solid var(--border);border-radius:14px;
 color:var(--muted);padding:22px 18px;font-size:14px;}
@@ -154,7 +154,7 @@ export default function TeacherRoomTransfers() {
 
   const statusOf = (t) => STATUS_MAP[String(t.status || '').toLowerCase()] || { label: t.status || '-', cls: 'pending' };
 
-  return (
+    return (
     <div className={`trf ${theme === 'dark' ? 'trf-dark' : ''}`}>
       <style>{css}</style>
 
@@ -172,30 +172,54 @@ export default function TeacherRoomTransfers() {
       ) : transfers.length === 0 ? (
         <div className="trf-empty">Belum ada permintaan perpindahan ruangan.</div>
       ) : (
-        <div className="trf-list">
-          {transfers.map((t) => {
-            const st = statusOf(t);
-            const from = t.schedule?.room?.name || t.from_room?.name || '-';
-            const to = t.room?.name || t.to_room?.name || '-';
-            return (
-              <div className="trf-item" key={t.id}>
-                <div className="trf-top">
-                  <span className="trf-subject">
-                    {t.schedule?.subject?.name || 'Mata Pelajaran'} — Kelas {t.schedule?.class?.name || '-'}
-                  </span>
-                  <span className={`trf-badge ${st.cls}`}>{st.label}</span>
-                </div>
-                <div className="trf-meta">
-                  {t.schedule?.day} · {fmtTime(t.schedule?.start_time)}–{fmtTime(t.schedule?.end_time)}
-                  <br />
-                  {from}{' '}
-                  <ArrowRight size={14} className="trf-arrow" style={{ display: 'inline-flex', verticalAlign: 'middle', margin: '0 4px' }} />{' '}
-                  {to}
-                  {t.reason ? <><br />Alasan: {t.reason}</> : null}
-                </div>
-              </div>
-            );
-          })}
+        <div className="trf-table-wrap">
+          <table className="trf-table">
+            <thead>
+              <tr>
+                <th>Tanggal Berlaku</th>
+                <th>Kelas</th>
+                <th>Dari</th>
+                <th>Ke</th>
+                <th>Alasan</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transfers.map((t) => {
+                const st = statusOf(t);
+                const from = t.schedule?.room?.name || t.from_room?.name || '-';
+                const to = t.room?.name || t.to_room?.name || '-';
+                const date = t.date || t.transfer_date || t.effective_date || '-';
+                
+                return (
+                  <tr key={t.id}>
+                    <td>{new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
+                    <td>{t.schedule?.class?.name || t.class?.name || '-'}</td>
+                    <td>{from}</td>
+                    <td>{to}</td>
+                    <td>
+                      {t.reason ? (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'flex-start', 
+                          gap: 6,
+                          maxWidth: '250px',
+                          fontSize: '12px',
+                          lineHeight: 1.5
+                        }}>
+                          <MessageSquare size={14} style={{ flexShrink: 0, marginTop: 2, color: '#2563eb' }} />
+                          <span style={{ color: 'var(--text)' }}>{t.reason}</span>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>-</span>
+                      )}
+                    </td>
+                    <td><span className={`trf-badge ${st.cls}`}>{st.label}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 

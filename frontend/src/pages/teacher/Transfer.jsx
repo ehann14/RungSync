@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshCw, Info, Calendar } from 'lucide-react';
+import { RefreshCw, Info, Calendar, MessageSquare } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
 
@@ -310,11 +310,18 @@ export default function TeacherTransfer() {
         <div className="trf-table-wrap">
           <table className="trf-table">
             <thead>
-              <tr><th>Tanggal Berlaku</th><th>Kelas</th><th>Dari</th><th>Ke</th><th>Status</th></tr>
+              <tr>
+                <th>Tanggal Berlaku</th>
+                <th>Kelas</th>
+                <th>Dari</th>
+                <th>Ke</th>
+                <th>Alasan</th>
+                <th>Status</th>
+              </tr>
             </thead>
             <tbody>
               {transfers.length === 0 ? (
-                <tr><td className="trf-empty" colSpan="5">Belum ada riwayat perpindahan.</td></tr>
+                <tr><td className="trf-empty" colSpan="6">Belum ada riwayat perpindahan.</td></tr>
               ) : (
                 transfers.map((t) => {
                   const st = statusOf(t);
@@ -324,6 +331,23 @@ export default function TeacherTransfer() {
                       <td>{t.schedule?.class?.name || t.class?.name || '-'}</td>
                       <td>{t.schedule?.room?.name || t.from_room?.name || '-'}</td>
                       <td>{t.room?.name || t.to_room?.name || '-'}</td>
+                      <td>
+                        {t.reason ? (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 6,
+                            maxWidth: '220px',
+                            fontSize: '12px',
+                            lineHeight: 1.4
+                          }}>
+                            <MessageSquare size={14} style={{ flexShrink: 0, marginTop: 2, color: '#2563eb' }} />
+                            <span style={{ color: 'var(--text)' }}>{t.reason}</span>
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--muted)', fontStyle: 'italic', fontSize: '12px' }}>-</span>
+                        )}
+                      </td>
                       <td><span className={`trf-badge ${st.cls}`}>{st.label}</span></td>
                     </tr>
                   );

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { User, Lock } from 'lucide-react';
 import { Avatar, Toast, useProfile } from '../components/ProfileBase';
 import PageLoader from '../components/PageLoader';
 import './profile.css';
@@ -95,7 +96,9 @@ export default function Profile({ role = 'admin' }) {
 
         {/* Ganti Nama */}
         <section className="pf-card">
-          <div className="pf-title">Ganti Nama</div>
+          <div className="pf-title">
+            <User size={16} /> Ganti Nama
+          </div>
           <p className="pf-desc">Nama ini yang tampil di seluruh aplikasi RungSync.</p>
           <form onSubmit={handleSaveName}>
             <div className="pf-row">
@@ -123,7 +126,9 @@ export default function Profile({ role = 'admin' }) {
 
         {/* Ganti Kata Sandi */}
         <section className="pf-card">
-          <div className="pf-title">Ganti Kata Sandi</div>
+          <div className="pf-title">
+            <Lock size={16} /> Ganti Kata Sandi
+          </div>
           <p className="pf-desc">Gunakan minimal 6 karakter. Jangan bagikan kata sandi kamu ke siapa pun.</p>
           <form onSubmit={handleChangePwd}>
             <div className="pf-row" style={{ marginBottom: 10 }}>
