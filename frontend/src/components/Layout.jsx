@@ -66,9 +66,12 @@ background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;font-weight:700;fon
 .lay-logout:hover{filter:brightness(1.1);}
 
 .lay-main{flex:1;margin-left:240px;display:flex;flex-direction:column;min-width:0;}
-.lay-header{display:flex;justify-content:space-between;align-items:center;gap:10px;
+
+/* ✅ UPDATE: Menambahkan position: sticky agar navbar tetap di atas saat scroll */
+.lay-header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:10px;
 padding:12px 22px;background:var(--header-bg);color:var(--header-text);
 border-bottom:1px solid var(--header-line);}
+
 .lay-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .lay-header-right{display:flex;align-items:center;gap:10px;}
 .lay-burger{display:none;border:none;background:transparent;color:var(--header-text);
