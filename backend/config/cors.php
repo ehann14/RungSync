@@ -2,7 +2,10 @@
 return [
     'paths' => ['api/*'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => array_filter(array_merge(
+        ['http://localhost:5173'],
+        explode(',', env('FRONTEND_URL', ''))
+    )),
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],

@@ -31,7 +31,7 @@ class StudentController extends Controller
             'name'     => $validated['name'],
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password'] ?? 'siswa12345'),
-            'role'     => 'student',
+            'role'     => 'siswa',
         ]);
 
         $student = Student::create([

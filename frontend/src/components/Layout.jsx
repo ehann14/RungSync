@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, User, Calendar, DoorOpen, UserCheck,
-  GraduationCap, School, BookOpen, ArrowLeftRight,
+  GraduationCap, School, BookOpen, ArrowLeftRight, FileDown,
   LogOut, CalendarDays, Clock, Moon, Sun, Menu
 } from 'lucide-react';
 import api from '../services/api';
@@ -28,6 +28,7 @@ const MENUS = {
     { label: 'Kelas', to: '/admin/classes', icon: <School size={18} /> },
     { label: 'Mata Pelajaran', to: '/admin/subjects', icon: <BookOpen size={18} /> },
     { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
+    { label: 'Ekspor Jadwal', to: '/admin/export', icon: <FileDown size={18} /> },
   ],
   guru: [
     { label: 'Dashboard', to: '/teacher/dashboard', icon: <LayoutDashboard size={18} /> },

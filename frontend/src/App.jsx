@@ -21,6 +21,7 @@ import AdminStudents from './pages/admin/Students';
 import AdminClasses from './pages/admin/Classes';
 import AdminSubjects from './pages/admin/Subjects';
 import AdminTransfers from './pages/admin/Transfers';
+import AdminExport from './pages/admin/Export';
 
 // 1 komponen profil untuk semua role (ganti nama & kata sandi)
 import Profile from './pages/Profile';
@@ -175,6 +176,14 @@ export default function App() {
             element={
               <ProtectedRoute roles={['admin']}>
                 <AdminTransfers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/export"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <AdminExport />
               </ProtectedRoute>
             }
           />

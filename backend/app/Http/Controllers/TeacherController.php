@@ -36,7 +36,7 @@ class TeacherController extends Controller
             'name'     => $validated['name'],
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password'] ?? 'guru12345'),
-            'role'     => 'teacher',
+            'role'     => 'guru',
         ]);
 
         $teacher = Teacher::create([
