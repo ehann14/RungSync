@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // <-- TAMBAHAN
 import api from '../../services/api';
 import ScheduleFormModal from '../../components/ScheduleFormModal';
 import PageLoader from '../../components/PageLoader';
+import { History } from 'lucide-react'; // <-- TAMBAHAN
 
 const fmtTime = (t) => (t ? t.slice(0, 5).replace(':', '.') : '');
 const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + m; };
@@ -64,29 +66,22 @@ const css = `
 .rsx-select:focus{border-color:#2563eb;}
 .rsx-note{font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
 .rsx-note b{color:var(--text-strong);}
-.rsx-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;
-margin-right:6px;animation:rsxPulse 1.2s infinite;}
+.rsx-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:6px;animation:rsxPulse 1.2s infinite;}
 @keyframes rsxPulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
-.rsx-live-chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:10px;font-weight:800;
-background:rgba(34,197,94,.15);color:#4ade80;margin-left:8px;}
+.rsx-live-chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:10px;font-weight:800;background:rgba(34,197,94,.15);color:#4ade80;margin-left:8px;}
 .rsx-light .rsx-live-chip{color:#15803d;}
 .rsx-table-card{background:var(--card);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.08);}
 .rsx-table-wrap{overflow-x:auto;}
 .rsx-table{width:100%;border-collapse:collapse;}
 .rsx-table th{background:var(--th-bg);color:var(--th-text);text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;}
-.rsx-table td{
-  padding:13px 16px;
-  border-top:1px solid var(--row-line);
-  color:var(--text);
-  font-size:13.5px;
-  vertical-align: middle !important;
-}
+.rsx-table td{padding:13px 16px;border-top:1px solid var(--row-line);color:var(--text);font-size:13.5px;vertical-align: middle !important;}
 .rsx-table tr:hover td{background:var(--row-hover);}
 .rsx-table tr.rsx-live td{background:rgba(34,197,94,.07);}
 .rsx-empty{text-align:center;color:var(--muted);padding:24px 0 !important;}
 `;
 
 export default function Schedules() {
+  const navigate = useNavigate(); // <-- TAMBAHAN
   const theme = useAppTheme();
   const [schedules, setSchedules] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -98,6 +93,8 @@ export default function Schedules() {
   const [filters, setFilters] = useState({ day: '', class_id: '', teacher_id: '', room_id: '' });
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  
+  const [activePeriod, setActivePeriod] = useState(null); // <-- TAMBAHAN STATE
 
   useEffect(() => {
     const t = setInterval(() => setTick((x) => x + 1), 30000);
@@ -124,7 +121,21 @@ export default function Schedules() {
     } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // <-- TAMBAHAN: Load Periode Aktif
+  const loadActivePeriod = useCallback(async () => {
+    try {
+      const res = await api.get('/academic-periods');
+      const active = res.data.find(p => p.is_active);
+      setActivePeriod(active);
+    } catch (e) {
+      console.error('Gagal memuat periode aktif:', e);
+    }
+  }, []);
+
+  useEffect(() => { 
+    load(); 
+    loadActivePeriod(); // <-- TAMBAHAN
+  }, [load, loadActivePeriod]);
 
   if (loading) return <PageLoader text="Memuat manajemen jadwal…" />;
 
@@ -133,19 +144,16 @@ export default function Schedules() {
   const today = now.toLocaleDateString('id-ID', { weekday: 'long' });
   const tIdx = DAYS.indexOf(today);
 
-  // Hitung tanggal untuk hari Senin - Jumat pada minggu berjalan
   const getWeekDates = () => {
     const dates = {};
     const curr = new Date();
-    const day = curr.getDay(); // 0 (Minggu) - 6 (Sabtu)
+    const day = curr.getDay();
     const diffToMonday = day === 0 ? -6 : 1 - day;
     const monday = new Date(curr);
     monday.setDate(curr.getDate() + diffToMonday);
-
     DAYS.forEach((d, i) => {
       const date = new Date(monday);
       date.setDate(monday.getDate() + i);
-      // Format: 23 Okt
       dates[d] = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
     });
     return dates;
@@ -177,9 +185,7 @@ export default function Schedules() {
 
   let view;
   if (!filters.day) {
-    view = baseFiltered
-      .filter((s) => !isPastToday(s))
-      .sort((a, b) => rank(a) - rank(b) || (a.start_time || '').localeCompare(b.start_time || ''));
+    view = baseFiltered.filter((s) => !isPastToday(s)).sort((a, b) => rank(a) - rank(b) || (a.start_time || '').localeCompare(b.start_time || ''));
   } else {
     view = baseFiltered.sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
   }
@@ -207,8 +213,34 @@ export default function Schedules() {
       <style>{css}</style>
 
       <div className="rsx-page-header">
-        <h2>Manajemen Jadwal</h2>
-        <button className="rsx-btn rsx-btn-primary" onClick={openCreate}>+ Tambah Jadwal</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <h2>Manajemen Jadwal</h2>
+          {/* <-- TAMBAHAN: Badge Periode Aktif --> */}
+          {activePeriod && (
+            <span style={{
+              padding: '6px 14px',
+              backgroundColor: 'rgba(34,197,94,.15)',
+              color: '#4ade80',
+              borderRadius: '999px',
+              fontSize: '12px',
+              fontWeight: '700',
+              border: '1px solid rgba(34,197,94,.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80' }}></span>
+              {activePeriod.name}
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {/* <-- TAMBAHAN: Tombol Lihat Histori --> */}
+          <button className="rsx-btn rsx-btn-edit" onClick={() => navigate('/admin/schedule-history')} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <History size={16} /> Lihat Histori
+          </button>
+          <button className="rsx-btn rsx-btn-primary" onClick={openCreate}>+ Tambah Jadwal</button>
+        </div>
       </div>
 
       <div className="rsx-filter-bar">
@@ -233,9 +265,7 @@ export default function Schedules() {
       <div className="rsx-note">
         {filters.day
           ? <>Menampilkan jadwal <b>{filters.day}</b> lengkap (maks {MAX_ROWS} baris).</>
-          : <>Menampilkan <b>maks {MAX_ROWS} jadwal terdekat</b> — jam hari ini yang sudah selesai
-             otomatis disembunyikan, yang <b>sedang berlangsung</b> tampil paling atas.
-             Diperbarui otomatis tiap 30 detik.</>}
+          : <>Menampilkan <b>maks {MAX_ROWS} jadwal terdekat</b> — jam hari ini yang sudah selesai otomatis disembunyikan, yang <b>sedang berlangsung</b> tampil paling atas. Diperbarui otomatis tiap 30 detik.</>}
         {hiddenCount > 0 && <> · {hiddenCount} jadwal lain tidak ditampilkan (gunakan filter untuk melihatnya).</>}
       </div>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\DashboardController;
@@ -38,11 +39,23 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':admin'])->group(functio
         // ==================== AUDIT LOGS ====================
         Route::get('audit-logs', [AuditLogController::class, 'index']);
 
+        // ==================== ACADEMIC PERIODS ====================
+        Route::get('academic-periods', [AcademicPeriodController::class, 'index']);
+        Route::post('academic-periods', [AcademicPeriodController::class, 'store']);
+        Route::post('academic-periods/{id}/activate', [AcademicPeriodController::class, 'activate']);
+        Route::post(
+            'academic-periods/{id}/copy-schedules-from/{sourceId}',
+            [AcademicPeriodController::class, 'copyFromPrevious']
+        );
+
         // ==================== JADWAL ====================
         Route::get('schedules', [ScheduleController::class, 'index']);
         Route::post('schedules', [ScheduleController::class, 'store']);
         Route::put('schedules/{id}', [ScheduleController::class, 'update']);
         Route::delete('schedules/{id}', [ScheduleController::class, 'destroy']);
+
+        // Schedule History
+        Route::get('schedules/history', [ScheduleController::class, 'history']);
 
         // ==================== RUANGAN ====================
         Route::get('rooms', [RoomController::class, 'index']);

@@ -15,6 +15,7 @@ import TeacherTransfer from './pages/teacher/Transfer';
 
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminSchedules from './pages/admin/Schedules';
+import AdminScheduleHistory from './pages/admin/ScheduleHistory'; // <-- TAMBAHAN BARU
 import AdminRooms from './pages/admin/Rooms';
 import AdminTeachers from './pages/admin/Teachers';
 import AdminStudents from './pages/admin/Students';
@@ -22,9 +23,9 @@ import AdminClasses from './pages/admin/Classes';
 import AdminSubjects from './pages/admin/Subjects';
 import AdminTransfers from './pages/admin/Transfers';
 import AdminExport from './pages/admin/Export';
-import AdminAuditLog from './pages/admin/AuditLog'; // <-- TAMBAHAN BARU
+import AdminAuditLog from './pages/admin/AuditLog';
+import AdminAcademicPeriods from './pages/admin/AcademicPeriods';
 
-// 1 komponen profil untuk semua role (ganti nama & kata sandi)
 import Profile from './pages/Profile';
 
 export default function App() {
@@ -38,7 +39,6 @@ export default function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-
           {/* ============ SISWA ============ */}
           <Route path="student/dashboard" element={<ProtectedRoute roles={['student', 'siswa']}><StudentDashboard /></ProtectedRoute>} />
           <Route path="student/schedule" element={<ProtectedRoute roles={['student', 'siswa']}><StudentSchedule /></ProtectedRoute>} />
@@ -54,7 +54,9 @@ export default function App() {
           {/* ============ ADMIN ============ */}
           <Route path="admin/dashboard" element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
           <Route path="admin/profile" element={<ProtectedRoute roles={['admin']}><Profile role="admin" /></ProtectedRoute>} />
+          <Route path="admin/academic-periods" element={<ProtectedRoute roles={['admin']}><AdminAcademicPeriods /></ProtectedRoute>} />
           <Route path="admin/schedules" element={<ProtectedRoute roles={['admin']}><AdminSchedules /></ProtectedRoute>} />
+          <Route path="admin/schedule-history" element={<ProtectedRoute roles={['admin']}><AdminScheduleHistory /></ProtectedRoute>} /> {/* <-- TAMBAHAN BARU */}
           <Route path="admin/rooms" element={<ProtectedRoute roles={['admin']}><AdminRooms /></ProtectedRoute>} />
           <Route path="admin/teachers" element={<ProtectedRoute roles={['admin']}><AdminTeachers /></ProtectedRoute>} />
           <Route path="admin/students" element={<ProtectedRoute roles={['admin']}><AdminStudents /></ProtectedRoute>} />
@@ -62,10 +64,7 @@ export default function App() {
           <Route path="admin/subjects" element={<ProtectedRoute roles={['admin']}><AdminSubjects /></ProtectedRoute>} />
           <Route path="admin/room-transfers" element={<ProtectedRoute roles={['admin']}><AdminTransfers /></ProtectedRoute>} />
           <Route path="admin/export" element={<ProtectedRoute roles={['admin']}><AdminExport /></ProtectedRoute>} />
-          
-          {/* <-- TAMBAHAN ROUTE BARU UNTUK AUDIT LOG --> */}
           <Route path="admin/audit-log" element={<ProtectedRoute roles={['admin']}><AdminAuditLog /></ProtectedRoute>} />
-
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

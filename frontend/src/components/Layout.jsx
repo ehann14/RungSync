@@ -3,12 +3,11 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, User, Calendar, DoorOpen, UserCheck,
   GraduationCap, School, BookOpen, ArrowLeftRight, FileDown,
-  LogOut, CalendarDays, Clock, Moon, Sun, Menu, History // <-- TAMBAHAN ICON History
+  LogOut, CalendarDays, Clock, Moon, Sun, Menu, History
 } from 'lucide-react';
 import api from '../services/api';
 import { clearUserCache } from './ProtectedRoute';
 
-/* ============ Helper role yang AMAN ============ */
 const normalizeRole = (r) => {
   const role = String(r || '').toLowerCase().trim();
   if (role === 'teacher' || role === 'guru') return 'guru';
@@ -21,6 +20,7 @@ const MENUS = {
   admin: [
     { label: 'Dashboard', to: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
     { label: 'Profil Saya', to: '/admin/profile', icon: <User size={18} /> },
+    { label: 'Tahun Ajaran', to: '/admin/academic-periods', icon: <CalendarDays size={18} /> }, // <-- TAMBAHAN BARU
     { label: 'Manajemen Jadwal', to: '/admin/schedules', icon: <Calendar size={18} /> },
     { label: 'Ruangan', to: '/admin/rooms', icon: <DoorOpen size={18} /> },
     { label: 'Guru', to: '/admin/teachers', icon: <UserCheck size={18} /> },
@@ -29,7 +29,7 @@ const MENUS = {
     { label: 'Mata Pelajaran', to: '/admin/subjects', icon: <BookOpen size={18} /> },
     { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
     { label: 'Ekspor Jadwal', to: '/admin/export', icon: <FileDown size={18} /> },
-    { label: 'Audit Log', to: '/admin/audit-log', icon: <History size={18} /> }, // <-- TAMBAHAN MENU BARU
+    { label: 'Audit Log', to: '/admin/audit-log', icon: <History size={18} /> },
   ],
   guru: [
     { label: 'Dashboard', to: '/teacher/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -67,39 +67,27 @@ background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;font-weight:700;fon
 .lay-logout:hover{filter:brightness(1.1);}
 
 .lay-main{flex:1;margin-left:240px;display:flex;flex-direction:column;min-width:0;}
-
 .lay-header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:10px;
-padding:12px 22px;background:var(--header-bg);color:var(--header-text);
-border-bottom:1px solid var(--header-line);}
-
+padding:12px 22px;background:var(--header-bg);color:var(--header-text);border-bottom:1px solid var(--header-line);}
 .lay-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .lay-header-right{display:flex;align-items:center;gap:10px;}
-.lay-burger{display:none;border:none;background:transparent;color:var(--header-text);
-cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
+.lay-burger{display:none;border:none;background:transparent;color:var(--header-text);cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
 .lay-date{font-size:12.5px;opacity:.8;display:flex;align-items:center;gap:6px;}
-.lay-clock{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;border-radius:999px;
-padding:6px 14px;font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px;}
-.lay-theme{border:none;border-radius:10px;padding:6px 10px;cursor:pointer;
-background:transparent;box-shadow:inset 0 0 0 1px var(--header-line);color:var(--header-text);display:flex;align-items:center;}
-.lay-role{background:#2563eb;color:#fff;border-radius:999px;padding:5px 12px;
-font-size:10.5px;font-weight:800;letter-spacing:.06em;}
+.lay-clock{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.lay-theme{border:none;border-radius:10px;padding:6px 10px;cursor:pointer;background:transparent;box-shadow:inset 0 0 0 1px var(--header-line);color:var(--header-text);display:flex;align-items:center;}
+.lay-role{background:#2563eb;color:#fff;border-radius:999px;padding:5px 12px;font-size:10.5px;font-weight:800;letter-spacing:.06em;}
 .lay-name{font-size:13px;font-weight:700;white-space:nowrap;}
-.lay-avatar{width:34px;height:34px;border-radius:50%;color:#fff;font-weight:800;flex:none;
-background:linear-gradient(90deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;
-text-decoration:none;cursor:pointer;transition:transform .18s;}
+.lay-avatar{width:34px;height:34px;border-radius:50%;color:#fff;font-weight:800;flex:none;background:linear-gradient(90deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;transition:transform .18s;}
 .lay-avatar:hover{transform:scale(1.08);}
 .lay-content{flex:1;padding:22px;background:var(--content-bg);}
 .lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px;}
 .lay-scrim{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:60;}
 
-.lay-link svg, .lay-logout svg, .lay-header svg {
-  width: 18px; height: 18px; flex-shrink: 0; color: currentColor;
-}
+.lay-link svg, .lay-logout svg, .lay-header svg { width: 18px; height: 18px; flex-shrink: 0; color: currentColor; }
 .lay-clock svg, .lay-date svg { width: 16px; height: 16px; }
 
 @media (max-width:900px){
-  .lay-sidebar{width:260px;transform:translateX(-105%);transition:transform .25s ease;
-  box-shadow:0 0 40px rgba(2,6,23,.55);}
+  .lay-sidebar{width:260px;transform:translateX(-105%);transition:transform .25s ease;box-shadow:0 0 40px rgba(2,6,23,.55);}
   .lay.menu-open .lay-sidebar{transform:translateX(0);}
   .lay-main{margin-left:0;}
   .lay-burger{display:block;}
@@ -139,11 +127,8 @@ export default function Layout() {
       .then((res) => {
         const userData = res.data?.data || res.data?.user || res.data;
         setUser(userData);
-        
         const role = normalizeRole(userData?.role);
-        if (!role) {
-          handleLogout(); 
-        }
+        if (!role) handleLogout(); 
       })
       .catch(() => {
         localStorage.removeItem('token');
@@ -165,32 +150,21 @@ export default function Layout() {
   const role = normalizeRole(user.role);
   const menus = MENUS[role] || [];
 
-  const dateLabel = now.toLocaleDateString('id-ID', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  });
-  const timeLabel = now.toLocaleTimeString('id-ID', {
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-  });
+  const dateLabel = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const timeLabel = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
     <div className={`lay ${theme === 'dark' ? 'dark' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <style>{css}</style>
-
       {menuOpen && <div className="lay-scrim" onClick={() => setMenuOpen(false)} />}
 
       <aside className="lay-sidebar">
         <div className="lay-logo">
           <img src="/logo.png" alt="RungSync Logo" />
         </div>
-        
         <nav className="lay-nav">
           {menus.map((m) => (
-            <NavLink
-              key={m.to}
-              to={m.to}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) => 'lay-link' + (isActive ? ' active' : '')}
-            >
+            <NavLink key={m.to} to={m.to} onClick={() => setMenuOpen(false)} className={({ isActive }) => 'lay-link' + (isActive ? ' active' : '')}>
               {m.icon} <span>{m.label}</span>
             </NavLink>
           ))}
@@ -206,19 +180,11 @@ export default function Layout() {
             <button className="lay-burger" onClick={() => setMenuOpen(true)} title="Buka menu">
               <Menu size={20} />
             </button>
-            <span className="lay-date">
-              <CalendarDays /> {dateLabel}
-            </span>
-            <span className="lay-clock">
-              <Clock /> {timeLabel}
-            </span>
+            <span className="lay-date"><CalendarDays /> {dateLabel}</span>
+            <span className="lay-clock"><Clock /> {timeLabel}</span>
           </div>
           <div className="lay-header-right">
-            <button
-              className="lay-theme"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              title="Ganti tema"
-            >
+            <button className="lay-theme" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} title="Ganti tema">
               {theme === 'light' ? <Moon /> : <Sun />}
             </button>
             <span className="lay-role">{role ? role.toUpperCase() : 'UNKNOWN'}</span>
