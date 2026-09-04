@@ -22,6 +22,7 @@ import AdminClasses from './pages/admin/Classes';
 import AdminSubjects from './pages/admin/Subjects';
 import AdminTransfers from './pages/admin/Transfers';
 import AdminExport from './pages/admin/Export';
+import AdminAuditLog from './pages/admin/AuditLog'; // <-- TAMBAHAN BARU
 
 // 1 komponen profil untuk semua role (ganti nama & kata sandi)
 import Profile from './pages/Profile';
@@ -39,154 +40,31 @@ export default function App() {
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
 
           {/* ============ SISWA ============ */}
-          <Route
-            path="student/dashboard"
-            element={
-              <ProtectedRoute roles={['student', 'siswa']}>
-                <StudentDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="student/schedule"
-            element={
-              <ProtectedRoute roles={['student', 'siswa']}>
-                <StudentSchedule />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="student/profile"
-            element={
-              <ProtectedRoute roles={['student', 'siswa']}>
-                <Profile role="siswa" />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="student/dashboard" element={<ProtectedRoute roles={['student', 'siswa']}><StudentDashboard /></ProtectedRoute>} />
+          <Route path="student/schedule" element={<ProtectedRoute roles={['student', 'siswa']}><StudentSchedule /></ProtectedRoute>} />
+          <Route path="student/profile" element={<ProtectedRoute roles={['student', 'siswa']}><Profile role="siswa" /></ProtectedRoute>} />
 
           {/* ============ GURU ============ */}
-          <Route
-            path="teacher/dashboard"
-            element={
-              <ProtectedRoute roles={['teacher', 'guru']}>
-                <TeacherDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="teacher/schedule"
-            element={
-              <ProtectedRoute roles={['teacher', 'guru']}>
-                <TeacherSchedule />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="teacher/rooms"
-            element={
-              <ProtectedRoute roles={['teacher', 'guru']}>
-                <TeacherRooms />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="teacher/room-transfers"
-            element={
-              <ProtectedRoute roles={['teacher', 'guru']}>
-                <TeacherTransfer />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="teacher/profile"
-            element={
-              <ProtectedRoute roles={['teacher', 'guru']}>
-                <Profile role="guru" />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="teacher/dashboard" element={<ProtectedRoute roles={['teacher', 'guru']}><TeacherDashboard /></ProtectedRoute>} />
+          <Route path="teacher/schedule" element={<ProtectedRoute roles={['teacher', 'guru']}><TeacherSchedule /></ProtectedRoute>} />
+          <Route path="teacher/rooms" element={<ProtectedRoute roles={['teacher', 'guru']}><TeacherRooms /></ProtectedRoute>} />
+          <Route path="teacher/room-transfers" element={<ProtectedRoute roles={['teacher', 'guru']}><TeacherTransfer /></ProtectedRoute>} />
+          <Route path="teacher/profile" element={<ProtectedRoute roles={['teacher', 'guru']}><Profile role="guru" /></ProtectedRoute>} />
 
           {/* ============ ADMIN ============ */}
-          <Route
-            path="admin/dashboard"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/profile"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <Profile role="admin" />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/schedules"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminSchedules />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/rooms"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminRooms />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/teachers"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminTeachers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/students"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminStudents />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/classes"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminClasses />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/subjects"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminSubjects />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/room-transfers"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminTransfers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/export"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminExport />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="admin/dashboard" element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="admin/profile" element={<ProtectedRoute roles={['admin']}><Profile role="admin" /></ProtectedRoute>} />
+          <Route path="admin/schedules" element={<ProtectedRoute roles={['admin']}><AdminSchedules /></ProtectedRoute>} />
+          <Route path="admin/rooms" element={<ProtectedRoute roles={['admin']}><AdminRooms /></ProtectedRoute>} />
+          <Route path="admin/teachers" element={<ProtectedRoute roles={['admin']}><AdminTeachers /></ProtectedRoute>} />
+          <Route path="admin/students" element={<ProtectedRoute roles={['admin']}><AdminStudents /></ProtectedRoute>} />
+          <Route path="admin/classes" element={<ProtectedRoute roles={['admin']}><AdminClasses /></ProtectedRoute>} />
+          <Route path="admin/subjects" element={<ProtectedRoute roles={['admin']}><AdminSubjects /></ProtectedRoute>} />
+          <Route path="admin/room-transfers" element={<ProtectedRoute roles={['admin']}><AdminTransfers /></ProtectedRoute>} />
+          <Route path="admin/export" element={<ProtectedRoute roles={['admin']}><AdminExport /></ProtectedRoute>} />
+          
+          {/* <-- TAMBAHAN ROUTE BARU UNTUK AUDIT LOG --> */}
+          <Route path="admin/audit-log" element={<ProtectedRoute roles={['admin']}><AdminAuditLog /></ProtectedRoute>} />
 
         </Route>
 

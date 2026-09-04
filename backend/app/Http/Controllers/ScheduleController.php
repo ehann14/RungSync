@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use App\Services\ScheduleService;
+use App\Services\AuditLogService; // <-- TAMBAHAN
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -16,15 +17,23 @@ class ScheduleController extends Controller
             if ($request->filled($f)) $q->where($f, $request->query($f));
         }
 
-        return $q->orderByRaw("FIELD(day,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
-                 ->orderBy('start_time')->get();
+        return response()->json(
+            $q->orderByRaw("FIELD(day,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
+              ->orderBy('start_time')->get()
+        );
     }
 
     public function store(Request $request)
     {
         $data = $this->validateData($request);
         $this->ensureNoConflict($data);
-        return response()->json(Schedule::create($data), 201);
+        
+        $schedule = Schedule::create($data);
+        
+        // AUDIT LOG: Created
+        AuditLogService::log('created', 'Schedule', $schedule->id);
+        
+        return response()->json($schedule, 201);
     }
 
     public function update(Request $request, $id)
@@ -32,13 +41,40 @@ class ScheduleController extends Controller
         $schedule = Schedule::findOrFail($id);
         $data = $this->validateData($request);
         $this->ensureNoConflict($data, $schedule->id);
+        
+        // 1. AUDIT LOG: Simpan state SEBELUM update
+        $cols = ['class_id', 'subject_id', 'teacher_id', 'room_id', 'day', 'start_time', 'end_time'];
+        $before = $schedule->only($cols);
+        
         $schedule->update($data);
+        
+        // 2. AUDIT LOG: Bandingkan dengan state SETELAH update
+        $schedule->refresh();
+        $after = $schedule->only($cols);
+        $changes = [];
+        
+        foreach ($before as $key => $value) {
+            if ((string)$value !== (string)$after[$key]) {
+                $changes[$key] = ['old' => $value, 'new' => $after[$key]];
+            }
+        }
+
+        if (!empty($changes)) {
+            AuditLogService::log('updated', 'Schedule', $schedule->id, $changes);
+        }
+        
         return response()->json($schedule);
     }
 
     public function destroy($id)
     {
-        Schedule::findOrFail($id)->delete();
+        $schedule = Schedule::findOrFail($id);
+        
+        // AUDIT LOG: Deleted (Simpan state sebelum dihapus)
+        $cols = ['class_id', 'subject_id', 'teacher_id', 'room_id', 'day', 'start_time', 'end_time'];
+        AuditLogService::log('deleted', 'Schedule', $schedule->id, $schedule->only($cols));
+        
+        $schedule->delete();
         return response()->json(['message' => 'Jadwal dihapus.']);
     }
 
@@ -63,7 +99,6 @@ class ScheduleController extends Controller
 
     private function ensureNoConflict(array $data, ?int $ignore = null): void
     {
-        // ✅ Samakan key: conflictMessages memakai 'start' & 'end'
         $msgs = ScheduleService::conflictMessages([
             'day'        => $data['day'],
             'start'      => $data['start_time'],
@@ -83,11 +118,13 @@ class ScheduleController extends Controller
     {
         $teacherId = optional($request->user()->teacher)->id;
 
-        return Schedule::with(['class', 'subject', 'room', 'teacher.user'])
-            ->where('teacher_id', $teacherId)
-            ->orderByRaw("FIELD(day,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
-            ->orderBy('start_time')
-            ->get();
+        return response()->json(
+            Schedule::with(['class', 'subject', 'room', 'teacher.user'])
+                ->where('teacher_id', $teacherId)
+                ->orderByRaw("FIELD(day,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
+                ->orderBy('start_time')
+                ->get()
+        );
     }
 
     // ===== TAMBAHAN: Jadwal untuk Siswa (GET /api/student/schedule) =====
@@ -95,10 +132,12 @@ class ScheduleController extends Controller
     {
         $classId = optional($request->user()->student)->class_id;
 
-        return Schedule::with(['class', 'subject', 'room', 'teacher.user'])
-            ->where('class_id', $classId)
-            ->orderByRaw("FIELD(day,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
-            ->orderBy('start_time')
-            ->get();
+        return response()->json(
+            Schedule::with(['class', 'subject', 'room', 'teacher.user'])
+                ->where('class_id', $classId)
+                ->orderByRaw("FIELD(day,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
+                ->orderBy('start_time')
+                ->get()
+        );
     }
 }

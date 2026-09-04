@@ -1,16 +1,25 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Services\ScheduleService;
+use App\Services\AuditLogService; // <-- TAMBAHAN
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class RoomController extends Controller
 {
-    public function index()  { return response()->json(ScheduleService::roomsStatus()); }
-    public function status() { return response()->json(ScheduleService::roomsStatus()); }
+    public function index()  
+    { 
+        return response()->json(ScheduleService::roomsStatus()); 
+    }
+    
+    public function status() 
+    { 
+        return response()->json(ScheduleService::roomsStatus()); 
+    }
 
     public function available(Request $request)
     {
@@ -28,14 +37,37 @@ class RoomController extends Controller
     public function store(Request $request)
     {
         $request->validate(['name' => 'required|string|unique:rooms,name']);
-        return response()->json(Room::create($request->only('name')), 201);
+        
+        $room = Room::create($request->only('name'));
+        
+        // AUDIT LOG: Created
+        AuditLogService::log('created', 'Room', $room->id);
+        
+        return response()->json($room, 201);
     }
 
     public function update(Request $request, $id)
     {
         $room = Room::findOrFail($id);
         $request->validate(['name' => 'required|string|unique:rooms,name,' . $room->id]);
+        
+        // AUDIT LOG: Updated (Simpan state sebelum update)
+        $before = $room->only(['name']);
+        
         $room->update($request->only('name'));
+        
+        $after = $room->only(['name']);
+        $changes = [];
+        foreach ($before as $key => $value) {
+            if ((string)$value !== (string)$after[$key]) {
+                $changes[$key] = ['old' => $value, 'new' => $after[$key]];
+            }
+        }
+
+        if (!empty($changes)) {
+            AuditLogService::log('updated', 'Room', $room->id, $changes);
+        }
+        
         return response()->json($room);
     }
 
@@ -45,6 +77,10 @@ class RoomController extends Controller
         if (Schedule::where('room_id', $room->id)->exists()) {
             return response()->json(['message' => 'Ruangan masih dipakai jadwal, tidak bisa dihapus.'], 422);
         }
+        
+        // AUDIT LOG: Deleted (Simpan state sebelum dihapus)
+        AuditLogService::log('deleted', 'Room', $room->id, $room->only(['name']));
+        
         $room->delete();
         return response()->json(['message' => 'Ruangan dihapus.']);
     }

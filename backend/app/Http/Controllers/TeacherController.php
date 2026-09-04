@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use App\Models\User;
+use App\Services\AuditLogService; // <-- TAMBAHAN
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,7 +26,7 @@ class TeacherController extends Controller
             'password'    => 'nullable|string|min:8',
             'nip'         => 'nullable|string|max:50',
             'subject_id'  => 'nullable|exists:subjects,id',
-            'subject_ids' => 'nullable|array|max:3',          // ← maksimal 3 mapel
+            'subject_ids' => 'nullable|array|max:3',
             'subject_ids.*' => 'exists:subjects,id',
         ]);
 
@@ -45,8 +46,10 @@ class TeacherController extends Controller
             'subject_id' => $primary,
         ]);
 
-        // simpan keahlian (max 3 sudah dijaga validasi)
         $teacher->subjects()->sync($ids ?: ($primary ? [$primary] : []));
+
+        // AUDIT LOG: Created
+        AuditLogService::log('created', 'Teacher', $teacher->id);
 
         return response()->json(['data' => $teacher->load(['user', 'subject', 'subjects'])], 201);
     }
@@ -61,6 +64,14 @@ class TeacherController extends Controller
             'subject_ids' => 'nullable|array|max:3',
             'subject_ids.*' => 'exists:subjects,id',
         ]);
+
+        // 1. AUDIT LOG: Simpan state SEBELUM update
+        $before = [
+            'name' => $teacher->user->name,
+            'email' => $teacher->user->email,
+            'nip' => $teacher->nip,
+            'subject_id' => $teacher->subject_id,
+        ];
 
         $ids = $validated['subject_ids'] ?? null;
         $primary = $ids ? $ids[0] : ($validated['subject_id'] ?? null);
@@ -79,11 +90,40 @@ class TeacherController extends Controller
             $teacher->subjects()->sync($ids ?: ($primary ? [$primary] : []));
         }
 
+        // 2. AUDIT LOG: Bandingkan dengan state SETELAH update
+        $teacher->refresh(); // Pastikan mengambil data terbaru dari database
+        $after = [
+            'name' => $teacher->user->name,
+            'email' => $teacher->user->email,
+            'nip' => $teacher->nip,
+            'subject_id' => $teacher->subject_id,
+        ];
+
+        $changes = [];
+        foreach ($before as $key => $value) {
+            if ((string)$value !== (string)$after[$key]) {
+                $changes[$key] = ['old' => $value, 'new' => $after[$key]];
+            }
+        }
+
+        if (!empty($changes)) {
+            AuditLogService::log('updated', 'Teacher', $teacher->id, $changes);
+        }
+
         return response()->json(['data' => $teacher->load(['user', 'subject', 'subjects'])]);
     }
 
     public function destroy(Teacher $teacher)
     {
+        // AUDIT LOG: Deleted (Simpan state sebelum dihapus)
+        $before = [
+            'name' => $teacher->user->name,
+            'email' => $teacher->user->email,
+            'nip' => $teacher->nip,
+            'subject_id' => $teacher->subject_id,
+        ];
+        AuditLogService::log('deleted', 'Teacher', $teacher->id, $before);
+
         $teacher->user()?->delete();
         $teacher->delete();
 
@@ -103,5 +143,7 @@ class TeacherController extends Controller
             'name'     => $teacher->user->name,
             'password' => $newPassword,
         ]);
+        // Catatan: Reset password opsional untuk di-log, tapi jika ingin, bisa tambahkan:
+        // AuditLogService::log('updated', 'Teacher', $teacher->id, ['password' => ['old' => '***', 'new' => '***']]);
     }
 }

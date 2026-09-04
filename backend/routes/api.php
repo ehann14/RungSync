@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController; // ➕ BARU
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomTransferController;
 use App\Http\Controllers\ScheduleController;
@@ -22,7 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // ➕ TAMBAHKAN 2 BARIS INI (untuk admin, guru, siswa)
+    // Profile
     Route::put('/profile', [ProfileController::class, 'updateName']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 });
@@ -33,13 +34,17 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':admin'])->group(functio
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     $adminRoutes = function () {
-        // Jadwal
+
+        // ==================== AUDIT LOGS ====================
+        Route::get('audit-logs', [AuditLogController::class, 'index']);
+
+        // ==================== JADWAL ====================
         Route::get('schedules', [ScheduleController::class, 'index']);
         Route::post('schedules', [ScheduleController::class, 'store']);
         Route::put('schedules/{id}', [ScheduleController::class, 'update']);
         Route::delete('schedules/{id}', [ScheduleController::class, 'destroy']);
 
-        // Ruangan
+        // ==================== RUANGAN ====================
         Route::get('rooms', [RoomController::class, 'index']);
         Route::get('rooms/status', [RoomController::class, 'status']);
         Route::get('rooms/available', [RoomController::class, 'available']);
@@ -47,42 +52,48 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':admin'])->group(functio
         Route::put('rooms/{id}', [RoomController::class, 'update']);
         Route::delete('rooms/{id}', [RoomController::class, 'destroy']);
 
-        // Guru
+        // ==================== GURU ====================
         Route::get('teachers', [TeacherController::class, 'index']);
         Route::post('teachers', [TeacherController::class, 'store']);
         Route::put('teachers/{teacher}', [TeacherController::class, 'update']);
         Route::delete('teachers/{teacher}', [TeacherController::class, 'destroy']);
         Route::post('teachers/{teacher}/reset-password', [TeacherController::class, 'resetPassword']);
 
-        // Siswa (CRUD lengkap + reset password)
+        // ==================== SISWA ====================
         Route::get('students', [StudentController::class, 'index']);
         Route::post('students', [StudentController::class, 'store']);
         Route::put('students/{student}', [StudentController::class, 'update']);
         Route::delete('students/{student}', [StudentController::class, 'destroy']);
         Route::post('students/{student}/reset-password', [StudentController::class, 'resetPassword']);
 
-        // Kelas
+        // ==================== KELAS ====================
         Route::get('classes', [ClassController::class, 'index']);
         Route::post('classes', [ClassController::class, 'store']);
         Route::put('classes/{id}', [ClassController::class, 'update']);
         Route::delete('classes/{id}', [ClassController::class, 'destroy']);
 
-        // Mata Pelajaran
+        // ==================== MATA PELAJARAN ====================
         Route::get('subjects', [SubjectController::class, 'index']);
         Route::post('subjects', [SubjectController::class, 'store']);
         Route::put('subjects/{id}', [SubjectController::class, 'update']);
         Route::delete('subjects/{id}', [SubjectController::class, 'destroy']);
 
-        // Perpindahan ruangan
+        // ==================== PERPINDAHAN RUANGAN ====================
         Route::get('room-transfers', [RoomTransferController::class, 'index']);
     };
 
     $adminRoutes();
+
+    // Prefix /admin
     Route::prefix('admin')->group($adminRoutes);
 });
 
 // ============ GURU ============
-Route::middleware(['auth:sanctum', EnsureRole::class . ':teacher'])->prefix('teacher')->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    EnsureRole::class . ':teacher'
+])->prefix('teacher')->group(function () {
+
     Route::get('/schedule', [ScheduleController::class, 'teacherSchedule']);
     Route::get('/rooms', [RoomController::class, 'available']);
     Route::post('/room-transfer', [RoomTransferController::class, 'store']);
@@ -90,6 +101,10 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':teacher'])->prefix('tea
 });
 
 // ============ SISWA ============
-Route::middleware(['auth:sanctum', EnsureRole::class . ':student'])->prefix('student')->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    EnsureRole::class . ':student'
+])->prefix('student')->group(function () {
+
     Route::get('/schedule', [ScheduleController::class, 'studentSchedule']);
 });

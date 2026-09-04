@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, User, Calendar, DoorOpen, UserCheck,
   GraduationCap, School, BookOpen, ArrowLeftRight, FileDown,
-  LogOut, CalendarDays, Clock, Moon, Sun, Menu
+  LogOut, CalendarDays, Clock, Moon, Sun, Menu, History // <-- TAMBAHAN ICON History
 } from 'lucide-react';
 import api from '../services/api';
 import { clearUserCache } from './ProtectedRoute';
@@ -29,6 +29,7 @@ const MENUS = {
     { label: 'Mata Pelajaran', to: '/admin/subjects', icon: <BookOpen size={18} /> },
     { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
     { label: 'Ekspor Jadwal', to: '/admin/export', icon: <FileDown size={18} /> },
+    { label: 'Audit Log', to: '/admin/audit-log', icon: <History size={18} /> }, // <-- TAMBAHAN MENU BARU
   ],
   guru: [
     { label: 'Dashboard', to: '/teacher/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -54,7 +55,6 @@ const css = `
 .lay-sidebar{width:240px;position:fixed;top:0;left:0;bottom:0;z-index:70;
 background:linear-gradient(180deg,#0d1930,#0a1225);display:flex;flex-direction:column;padding:18px 14px;}
 
-/* ✅ UPDATE: Styling khusus untuk logo gambar di sidebar */
 .lay-logo{display:flex;align-items:center;justify-content:center;padding:6px 10px 18px;}
 .lay-logo img{max-width:120px;height:auto;object-fit:contain;user-select:none;}
 .lay-nav{flex:1;display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
@@ -68,7 +68,6 @@ background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;font-weight:700;fon
 
 .lay-main{flex:1;margin-left:240px;display:flex;flex-direction:column;min-width:0;}
 
-/* ✅ UPDATE: Menambahkan position: sticky agar navbar tetap di atas saat scroll */
 .lay-header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:10px;
 padding:12px 22px;background:var(--header-bg);color:var(--header-text);
 border-bottom:1px solid var(--header-line);}
@@ -93,7 +92,6 @@ text-decoration:none;cursor:pointer;transition:transform .18s;}
 .lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px;}
 .lay-scrim{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:60;}
 
-/* Atur ukuran dan perilaku ikon SVG agar konsisten */
 .lay-link svg, .lay-logout svg, .lay-header svg {
   width: 18px; height: 18px; flex-shrink: 0; color: currentColor;
 }
@@ -142,7 +140,6 @@ export default function Layout() {
         const userData = res.data?.data || res.data?.user || res.data;
         setUser(userData);
         
-        // ✅ SAFETY CHECK: Jika role tidak valid, paksa logout
         const role = normalizeRole(userData?.role);
         if (!role) {
           handleLogout(); 
@@ -158,7 +155,7 @@ export default function Layout() {
 
   const handleLogout = async () => {
     try { await api.post('/logout'); } catch { /* abaikan */ }
-    clearUserCache(); // ✅ Clear cache saat logout
+    clearUserCache();
     localStorage.removeItem('token');
     navigate('/login', { replace: true });
   };
@@ -182,7 +179,6 @@ export default function Layout() {
       {menuOpen && <div className="lay-scrim" onClick={() => setMenuOpen(false)} />}
 
       <aside className="lay-sidebar">
-        {/* ✅ DIGANTI: Menggunakan gambar logo.png */}
         <div className="lay-logo">
           <img src="/logo.png" alt="RungSync Logo" />
         </div>
