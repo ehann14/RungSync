@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const css = `
 .sp{position:fixed;inset:0;z-index:2000;overflow:hidden;
-background:linear-gradient(160deg,#f8fafc 0%,#e9f2fc 55%,#dbeafe 100%);
+background:#eef4fc;
 display:flex;align-items:center;justify-content:center;}
 .sp::before,.sp::after{content:'';position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;}
 .sp::before{width:420px;height:420px;background:#93c5fd;top:-140px;left:-120px;animation:spFloat 7s ease-in-out infinite;}
@@ -30,7 +30,7 @@ animation:spLogo .9s cubic-bezier(.2,1.4,.4,1) both;}
 .sp-fallback h1 span{color:#2f8fe6;}
 .sp-tag{letter-spacing:.35em;font-size:11.5px;color:#33507a;font-weight:700;animation:spTrack 1.2s .5s both;}
 @keyframes spTrack{from{opacity:0;letter-spacing:.1em}to{opacity:1;letter-spacing:.35em}}
-.sp-slogan{margin:16px auto 0;display:inline-block;background:linear-gradient(90deg,#1668c7,#2f8fe6);
+.sp-slogan{margin:16px auto 0;display:inline-block;background:#1668c7;
 color:#fff;border-radius:999px;padding:9px 20px;font-size:13px;font-weight:600;
 box-shadow:0 8px 22px rgba(22,104,199,.35);animation:spUp .8s .8s both;}
 
@@ -38,7 +38,7 @@ box-shadow:0 8px 22px rgba(22,104,199,.35);animation:spUp .8s .8s both;}
 .sp-bar{width:230px;height:5px;background:rgba(22,104,199,.15);border-radius:99px;
 margin:26px auto 0;overflow:hidden;animation:spUp .8s 1s both;}
 .sp-bar i{display:block;height:100%;width:40%;border-radius:99px;
-background:linear-gradient(90deg,#1668c7,#2f8fe6);animation:spLoad 1.1s ease-in-out infinite;}
+background:#1668c7;animation:spLoad 1.1s ease-in-out infinite;}
 @keyframes spLoad{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
 .sp-copy{margin-top:12px;font-size:11px;color:#64748b;animation:spUp .8s 1.15s both;}
 @keyframes spUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}

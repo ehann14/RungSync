@@ -69,7 +69,7 @@ const css = `
 border-radius:999px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
 .tsc-pill small{display:block;font-size:9.5px;font-weight:600;opacity:.7;}
 .tsc-pill:hover{border-color:#2563eb;color:#2563eb;}
-.tsc-pill.active{background:linear-gradient(90deg,#2563eb,#06b6d4);border-color:transparent;
+.tsc-pill.active{background:#2563eb;border-color:transparent;
 color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .tsc-list{display:flex;flex-direction:column;gap:12px;}
 .tsc-item{background:var(--card);border:1px solid var(--border);border-radius:14px;

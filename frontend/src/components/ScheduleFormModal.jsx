@@ -58,7 +58,7 @@ color:var(--inp-text);border-radius:8px;padding:9px 12px;font-size:13px;outline:
 color:#fca5a5;border-radius:8px;padding:10px 12px;font-size:12.5px;margin-bottom:12px;}
 .sfm-overlay:not(.sfm-dark) .sfm-error{background:rgba(239,68,68,.08);color:#b91c1c;}
 .sfm-submit{border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;
-cursor:pointer;background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;
+cursor:pointer;background:#2563eb;color:#fff;
 box-shadow:0 4px 14px rgba(37,99,235,.35);width:100%;}
 .sfm-submit:hover{filter:brightness(1.1);}
 .sfm-submit:disabled{opacity:.6;cursor:wait;}

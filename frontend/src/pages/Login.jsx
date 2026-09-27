@@ -16,7 +16,7 @@ export const homeByRole = (r) => {
 
 const css = `
 .lgn-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
-background:linear-gradient(135deg,#0a1225 0%,#0d1930 60%,#12264a 100%);padding:16px;}
+background:#0d1930;padding:16px;}
 .lgn-card{width:400px;max-width:100%;background:#0d1930;border:1px solid #1c2b45;
 border-radius:18px;padding:30px 28px;box-shadow:0 24px 70px rgba(2,6,23,.55);}
 .lgn-logo{display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
@@ -33,7 +33,7 @@ cursor:pointer;color:#64748b;display:flex;align-items:center;transition:color .2
 .lgn-error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.5);color:#fca5a5;
 border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:12px;}
 .lgn-btn{width:100%;border:none;border-radius:10px;padding:12px;cursor:pointer;
-background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;font-size:14px;font-weight:700;
+background:#2563eb;color:#fff;font-size:14px;font-weight:700;
 box-shadow:0 6px 18px rgba(37,99,235,.4);transition:filter .2s;}
 .lgn-btn:hover{filter:brightness(1.1);}
 .lgn-btn:disabled{opacity:.6;cursor:wait;}

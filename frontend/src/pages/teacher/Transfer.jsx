@@ -96,7 +96,7 @@ letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;}
 .trf-day-cell span{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
 .trf-empty{text-align:center;color:var(--muted);padding:22px 0 !important;}
 .trf-btn{border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;}
-.trf-btn-primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
+.trf-btn-primary{background:#2563eb;color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .trf-btn-primary:hover{filter:brightness(1.1);}
 .trf-btn-primary:disabled{opacity:.6;cursor:wait;}
 .trf-btn-ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--border);color:var(--muted);}

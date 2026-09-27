@@ -94,10 +94,10 @@ border-radius:10px;padding:10px 12px;font-size:13px;outline:none;min-width:160px
 .rsx-select:focus{border-color:#2563eb;}
 .rsx-count{font-size:11.5px;color:var(--muted);width:100%;}
 .rsx-btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
-.rsx-btn-primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
+.rsx-btn-primary{background:#2563eb;color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .rsx-btn-primary:hover{filter:brightness(1.1);}
 .rsx-btn-edit{background:var(--edit-bg);color:var(--edit-text);border:1px solid var(--edit-border);}
-.rsx-btn-danger{background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;}
+.rsx-btn-danger{background:#ef4444;color:#fff;}
 .rsx-btn-sched{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.4);}
 .rsx-light .rsx-btn-sched{color:#15803d;}
 .rsx-btn-sm{padding:6px 11px;font-size:12px;border-radius:6px;margin-right:6px;}

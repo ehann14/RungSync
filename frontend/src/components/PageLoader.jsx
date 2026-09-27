@@ -12,7 +12,7 @@ animation:plRot 1.4s linear infinite reverse;}
 .pl-emo{width:36px;height:36px;color:#2563eb;animation:plPulse 1.2s ease-in-out infinite;}
 .pl-text{font-size:13px;font-weight:700;color:#64748b;letter-spacing:.03em;}
 .pl-dots{display:flex;gap:6px;}
-.pl-dots i{width:7px;height:7px;border-radius:50%;background:linear-gradient(90deg,#2563eb,#06b6d4);
+.pl-dots i{width:7px;height:7px;border-radius:50%;background:#2563eb;
 animation:plBounce 1s infinite;}
 .pl-dots i:nth-child(2){animation-delay:.15s;}
 .pl-dots i:nth-child(3){animation-delay:.3s;}

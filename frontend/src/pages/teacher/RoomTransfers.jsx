@@ -44,7 +44,7 @@ const css = `
 .trf-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
 .trf-header h2{font-size:22px;font-weight:800;color:var(--strong);margin:0;}
 .trf-btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;}
-.trf-btn-primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
+.trf-btn-primary{background:#2563eb;color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .trf-btn-primary:hover{filter:brightness(1.1);}
 .trf-btn-primary:disabled{opacity:.6;cursor:wait;}
 .trf-list{display:flex;flex-direction:column;gap:12px;}

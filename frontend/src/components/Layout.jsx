@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, User, Calendar, DoorOpen, UserCheck,
+  LayoutDashboard, Calendar, DoorOpen, UserCheck,
   GraduationCap, School, BookOpen, ArrowLeftRight, FileDown,
-  LogOut, CalendarDays, Clock, Moon, Sun, Menu, History
+  LogOut, CalendarDays, Clock, Moon, Sun, Menu
 } from 'lucide-react';
 import api from '../services/api';
 import { clearUserCache } from './ProtectedRoute';
 
+/* ============ Helper role yang AMAN ============ */
 const normalizeRole = (r) => {
   const role = String(r || '').toLowerCase().trim();
   if (role === 'teacher' || role === 'guru') return 'guru';
@@ -18,86 +19,122 @@ const normalizeRole = (r) => {
 
 const MENUS = {
   admin: [
-    { label: 'Dashboard', to: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
-    { label: 'Profil Saya', to: '/admin/profile', icon: <User size={18} /> },
-    { label: 'Tahun Ajaran', to: '/admin/academic-periods', icon: <CalendarDays size={18} /> }, // <-- TAMBAHAN BARU
-    { label: 'Manajemen Jadwal', to: '/admin/schedules', icon: <Calendar size={18} /> },
-    { label: 'Ruangan', to: '/admin/rooms', icon: <DoorOpen size={18} /> },
-    { label: 'Guru', to: '/admin/teachers', icon: <UserCheck size={18} /> },
-    { label: 'Siswa', to: '/admin/students', icon: <GraduationCap size={18} /> },
-    { label: 'Kelas', to: '/admin/classes', icon: <School size={18} /> },
-    { label: 'Mata Pelajaran', to: '/admin/subjects', icon: <BookOpen size={18} /> },
-    { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
-    { label: 'Ekspor Jadwal', to: '/admin/export', icon: <FileDown size={18} /> },
-    { label: 'Audit Log', to: '/admin/audit-log', icon: <History size={18} /> },
+    { group: 'Menu', items: [
+      { label: 'Dashboard', to: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
+    ] },
+    { group: 'Akademik', items: [
+      { label: 'Manajemen Jadwal', to: '/admin/schedules', icon: <Calendar size={18} /> },
+      { label: 'Ruangan', to: '/admin/rooms', icon: <DoorOpen size={18} /> },
+      { label: 'Guru', to: '/admin/teachers', icon: <UserCheck size={18} /> },
+      { label: 'Siswa', to: '/admin/students', icon: <GraduationCap size={18} /> },
+      { label: 'Kelas', to: '/admin/classes', icon: <School size={18} /> },
+      { label: 'Mata Pelajaran', to: '/admin/subjects', icon: <BookOpen size={18} /> },
+    ] },
+    { group: 'Lainnya', items: [
+      { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
+      { label: 'Ekspor Jadwal', to: '/admin/export', icon: <FileDown size={18} /> },
+    ] },
   ],
   guru: [
-    { label: 'Dashboard', to: '/teacher/dashboard', icon: <LayoutDashboard size={18} /> },
-    { label: 'Profil Saya', to: '/teacher/profile', icon: <User size={18} /> },
-    { label: 'Jadwal Saya', to: '/teacher/schedule', icon: <Calendar size={18} /> },
-    { label: 'Perpindahan Ruangan', to: '/teacher/room-transfers', icon: <ArrowLeftRight size={18} /> },
+    { group: 'Menu', items: [
+      { label: 'Dashboard', to: '/teacher/dashboard', icon: <LayoutDashboard size={18} /> },
+    ] },
+    { group: 'Mengajar', items: [
+      { label: 'Jadwal Saya', to: '/teacher/schedule', icon: <Calendar size={18} /> },
+      { label: 'Perpindahan Ruangan', to: '/teacher/room-transfers', icon: <ArrowLeftRight size={18} /> },
+    ] },
   ],
   siswa: [
-    { label: 'Dashboard', to: '/student/dashboard', icon: <LayoutDashboard size={18} /> },
-    { label: 'Profil Saya', to: '/student/profile', icon: <User size={18} /> },
-    { label: 'Jadwal Saya', to: '/student/schedule', icon: <Calendar size={18} /> },
+    { group: 'Menu', items: [
+      { label: 'Dashboard', to: '/student/dashboard', icon: <LayoutDashboard size={18} /> },
+    ] },
+    { group: 'Belajar', items: [
+      { label: 'Jadwal Saya', to: '/student/schedule', icon: <Calendar size={18} /> },
+    ] },
   ],
 };
 
 const profilePath = (role) =>
   role === 'guru' ? '/teacher/profile' : role === 'siswa' ? '/student/profile' : '/admin/profile';
 
+const roleLabel = (role) =>
+  role === 'guru' ? 'Guru' : role === 'siswa' ? 'Siswa' : 'Admin';
+
 const css = `
-.lay{display:flex;min-height:100vh;
---content-bg:#f1f5f9;--header-bg:#ffffff;--header-text:#0f172a;--header-line:rgba(148,163,184,.25);}
-.lay.dark{--content-bg:#0b1220;--header-bg:#0d1930;--header-text:#e2e8f0;--header-line:#1c2b45;}
+.lay{display:flex;min-height:100vh;font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+--content-bg:#f2f3fa;--header-bg:#ffffff;--header-text:#0f172a;--header-line:#eef0f8;
+--side-bg:#ffffff;--side-line:#eef0f8;--side-text:#8a8fa3;--side-strong:#1e1b3a;--side-hover:#f4f4fb;
+--side-group:#b7b9c9;--primary:#2563eb;--primary2:#2563eb;--card:#ffffff;}
+.lay.dark{--content-bg:#0b0f1e;--header-bg:#12162a;--header-text:#e7e9f5;--header-line:#22273f;
+--side-bg:#12162a;--side-line:#22273f;--side-text:#8790b8;--side-strong:#f1f2fb;--side-hover:#1b2036;
+--side-group:#4a5178;--card:#161a30;}
 
-.lay-sidebar{width:240px;position:fixed;top:0;left:0;bottom:0;z-index:70;
-background:linear-gradient(180deg,#0d1930,#0a1225);display:flex;flex-direction:column;padding:18px 14px;}
+.lay-sidebar{width:250px;position:fixed;top:0;left:0;bottom:0;z-index:70;
+background:var(--side-bg);border-right:1px solid var(--side-line);
+display:flex;flex-direction:column;padding:20px 16px;transition:background .2s,border-color .2s;}
 
-.lay-logo{display:flex;align-items:center;justify-content:center;padding:6px 10px 18px;}
-.lay-logo img{max-width:120px;height:auto;object-fit:contain;user-select:none;}
-.lay-nav{flex:1;display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
-.lay-link{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;
-color:#cbd5e1;text-decoration:none;font-size:13.5px;font-weight:600;transition:.2s;}
-.lay-link:hover{background:rgba(37,99,235,.15);color:#fff;}
-.lay-link.active{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35);}
-.lay-logout{margin-top:12px;border:none;border-radius:10px;padding:12px;cursor:pointer;
-background:linear-gradient(90deg,#f97316,#ef4444);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;}
-.lay-logout:hover{filter:brightness(1.1);}
+.lay-logo{display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 10px 22px;}
+.lay-logo img{max-width:118px;height:auto;object-fit:contain;user-select:none;}
 
-.lay-main{flex:1;margin-left:240px;display:flex;flex-direction:column;min-width:0;}
+.lay-nav{flex:1;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+.lay-group-label{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+color:var(--side-group);padding:0 12px;margin-bottom:2px;}
+.lay-group{display:flex;flex-direction:column;gap:3px;}
+.lay-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;
+color:var(--side-text);text-decoration:none;font-size:13.5px;font-weight:600;transition:.15s;}
+.lay-link:hover{background:var(--side-hover);color:var(--side-strong);}
+.lay-link.active{background:var(--primary);color:#fff;
+box-shadow:0 8px 18px rgba(37,99,235,.32);}
+
+.lay-logout{margin-top:14px;border:none;border-radius:12px;padding:12px;cursor:pointer;
+background:var(--side-hover);color:#e11d48;font-weight:700;font-size:13px;
+display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;}
+.lay-logout:hover{background:rgba(225,29,72,.12);}
+
+.lay-main{flex:1;margin-left:250px;display:flex;flex-direction:column;min-width:0;}
+
 .lay-header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:10px;
-padding:12px 22px;background:var(--header-bg);color:var(--header-text);border-bottom:1px solid var(--header-line);}
-.lay-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
-.lay-header-right{display:flex;align-items:center;gap:10px;}
-.lay-burger{display:none;border:none;background:transparent;color:var(--header-text);cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
-.lay-date{font-size:12.5px;opacity:.8;display:flex;align-items:center;gap:6px;}
-.lay-clock{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px;}
-.lay-theme{border:none;border-radius:10px;padding:6px 10px;cursor:pointer;background:transparent;box-shadow:inset 0 0 0 1px var(--header-line);color:var(--header-text);display:flex;align-items:center;}
-.lay-role{background:#2563eb;color:#fff;border-radius:999px;padding:5px 12px;font-size:10.5px;font-weight:800;letter-spacing:.06em;}
-.lay-name{font-size:13px;font-weight:700;white-space:nowrap;}
-.lay-avatar{width:34px;height:34px;border-radius:50%;color:#fff;font-weight:800;flex:none;background:linear-gradient(90deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;transition:transform .18s;}
-.lay-avatar:hover{transform:scale(1.08);}
-.lay-content{flex:1;padding:22px;background:var(--content-bg);}
-.lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px;}
-.lay-scrim{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:60;}
+padding:16px 26px;background:var(--header-bg);color:var(--header-text);
+border-bottom:1px solid var(--header-line);transition:background .2s,border-color .2s;}
 
-.lay-link svg, .lay-logout svg, .lay-header svg { width: 18px; height: 18px; flex-shrink: 0; color: currentColor; }
-.lay-clock svg, .lay-date svg { width: 16px; height: 16px; }
+.lay-header-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.lay-title{font-size:18px;font-weight:800;margin:0;}
+.lay-date{font-size:12px;color:#8a8fa3;display:flex;align-items:center;gap:6px;}
+.lay-header-right{display:flex;align-items:center;gap:12px;}
+.lay-burger{display:none;border:none;background:transparent;color:var(--header-text);
+cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1;}
+
+.lay-clock{background:var(--side-hover);color:var(--header-text);border-radius:12px;
+padding:8px 14px;font-size:12.5px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.lay-icbtn{border:none;border-radius:12px;width:38px;height:38px;cursor:pointer;
+background:var(--side-hover);color:var(--header-text);display:flex;align-items:center;justify-content:center;transition:.15s;}
+.lay-icbtn:hover{background:rgba(37,99,235,.14);color:var(--primary);}
+
+.lay-user{display:flex;align-items:center;gap:10px;padding-left:10px;border-left:1px solid var(--header-line);}
+.lay-user-txt{display:flex;flex-direction:column;line-height:1.25;}
+.lay-name{font-size:13px;font-weight:800;color:var(--header-text);white-space:nowrap;}
+.lay-role{font-size:11px;color:#8a8fa3;font-weight:600;}
+.lay-avatar{width:38px;height:38px;border-radius:50%;color:#fff;font-weight:800;flex:none;
+background:var(--primary);display:flex;align-items:center;justify-content:center;
+text-decoration:none;cursor:pointer;transition:transform .18s;font-size:14px;}
+.lay-avatar:hover{transform:scale(1.06);}
+
+.lay-content{flex:1;padding:24px 26px;background:var(--content-bg);transition:background .2s;}
+.lay-loading{flex:1;display:flex;align-items:center;justify-content:center;color:#8a8fa3;font-size:14px;}
+.lay-scrim{position:fixed;inset:0;background:rgba(15,17,33,.5);z-index:60;}
 
 @media (max-width:900px){
-  .lay-sidebar{width:260px;transform:translateX(-105%);transition:transform .25s ease;box-shadow:0 0 40px rgba(2,6,23,.55);}
+  .lay-sidebar{width:270px;transform:translateX(-105%);transition:transform .25s ease;
+  box-shadow:0 0 40px rgba(2,6,23,.35);}
   .lay.menu-open .lay-sidebar{transform:translateX(0);}
   .lay-main{margin-left:0;}
   .lay-burger{display:block;}
-  .lay-header{padding:10px 14px;}
+  .lay-header{padding:12px 16px;}
+  .lay-title{font-size:16px;}
   .lay-date{display:none;}
-  .lay-name{display:none;}
-  .lay-clock{padding:5px 10px;font-size:11px;}
-  .lay-role{padding:4px 10px;font-size:9.5px;}
-  .lay-avatar{width:30px;height:30px;font-size:13px;}
-  .lay-content{padding:14px;}
+  .lay-user-txt{display:none;}
+  .lay-clock{padding:6px 10px;font-size:11px;}
+  .lay-content{padding:16px;}
 }
 @media (max-width:420px){ .lay-clock{display:none;} }
 `;
@@ -127,8 +164,12 @@ export default function Layout() {
       .then((res) => {
         const userData = res.data?.data || res.data?.user || res.data;
         setUser(userData);
+
+        // Jika role tidak valid, paksa logout
         const role = normalizeRole(userData?.role);
-        if (!role) handleLogout(); 
+        if (!role) {
+          handleLogout();
+        }
       })
       .catch(() => {
         localStorage.removeItem('token');
@@ -148,29 +189,48 @@ export default function Layout() {
   if (!user) return <div className="lay-loading">Memuat…</div>;
 
   const role = normalizeRole(user.role);
-  const menus = MENUS[role] || [];
+  const groups = MENUS[role] || [];
 
-  const dateLabel = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const timeLabel = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const dateLabel = now.toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+  const timeLabel = now.toLocaleTimeString('id-ID', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+
+  const currentLabel =
+    groups.flatMap((g) => g.items).find((m) => location.pathname.startsWith(m.to))?.label || 'Dashboard';
 
   return (
     <div className={`lay ${theme === 'dark' ? 'dark' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <style>{css}</style>
+
       {menuOpen && <div className="lay-scrim" onClick={() => setMenuOpen(false)} />}
 
       <aside className="lay-sidebar">
         <div className="lay-logo">
           <img src="/logo.png" alt="RungSync Logo" />
         </div>
+
         <nav className="lay-nav">
-          {menus.map((m) => (
-            <NavLink key={m.to} to={m.to} onClick={() => setMenuOpen(false)} className={({ isActive }) => 'lay-link' + (isActive ? ' active' : '')}>
-              {m.icon} <span>{m.label}</span>
-            </NavLink>
+          {groups.map((g) => (
+            <div className="lay-group" key={g.group}>
+              <div className="lay-group-label">{g.group}</div>
+              {g.items.map((m) => (
+                <NavLink
+                  key={m.to}
+                  to={m.to}
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) => 'lay-link' + (isActive ? ' active' : '')}
+                >
+                  {m.icon} <span>{m.label}</span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
         <button className="lay-logout" onClick={handleLogout}>
-          <LogOut /> Logout
+          <LogOut size={16} /> Logout
         </button>
       </aside>
 
@@ -180,18 +240,31 @@ export default function Layout() {
             <button className="lay-burger" onClick={() => setMenuOpen(true)} title="Buka menu">
               <Menu size={20} />
             </button>
-            <span className="lay-date"><CalendarDays /> {dateLabel}</span>
-            <span className="lay-clock"><Clock /> {timeLabel}</span>
+            <h1 className="lay-title">{currentLabel}</h1>
+            <span className="lay-date">
+              <CalendarDays size={13} /> {dateLabel}
+            </span>
           </div>
           <div className="lay-header-right">
-            <button className="lay-theme" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} title="Ganti tema">
-              {theme === 'light' ? <Moon /> : <Sun />}
+            <span className="lay-clock">
+              <Clock size={14} /> {timeLabel}
+            </span>
+            <button
+              className="lay-icbtn"
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              title="Ganti tema"
+            >
+              {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
             </button>
-            <span className="lay-role">{role ? role.toUpperCase() : 'UNKNOWN'}</span>
-            <span className="lay-name">{user.name}</span>
-            <NavLink to={profilePath(role)} className="lay-avatar" title="Lihat profil">
-              {(user.name || 'U').charAt(0).toUpperCase()}
-            </NavLink>
+            <div className="lay-user">
+              <div className="lay-user-txt">
+                <span className="lay-name">{user.name}</span>
+                <span className="lay-role">{roleLabel(role)}</span>
+              </div>
+              <NavLink to={profilePath(role)} className="lay-avatar" title="Lihat profil">
+                {(user.name || 'U').charAt(0).toUpperCase()}
+              </NavLink>
+            </div>
           </div>
         </header>
 

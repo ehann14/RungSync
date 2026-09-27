@@ -61,19 +61,19 @@ border-radius:8px;padding:9px 12px;font-size:13.5px;outline:none;min-width:200px
 .exp-mode{display:flex;gap:8px;}
 .exp-mode button{border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);
 padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;}
-.exp-mode button.active{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff;border-color:transparent;}
+.exp-mode button.active{background:#2563eb;color:#fff;border-color:transparent;}
 .exp-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
 .exp-btn{border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;
 display:flex;align-items:center;gap:8px;transition:.2s;}
 .exp-btn:disabled{opacity:.5;cursor:not-allowed;}
-.exp-btn-pdf{background:linear-gradient(90deg,#ef4444,#f97316);color:#fff;}
+.exp-btn-pdf{background:#ef4444;color:#fff;}
 .exp-btn-pdf:hover:not(:disabled){filter:brightness(1.08);}
-.exp-btn-csv{background:linear-gradient(90deg,#16a34a,#22c55e);color:#fff;}
+.exp-btn-csv{background:#16a34a;color:#fff;}
 .exp-btn-csv:hover:not(:disabled){filter:brightness(1.08);}
 .exp-btn-print{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);}
 
 /* ✅ TAMPILAN JADWAL FORMAL SEKOLAH */
-.exp-formal-header{background:linear-gradient(135deg,#166534,#15803d);color:#fff;padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;}
+.exp-formal-header{background:#166534;color:#fff;padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;}
 .exp-formal-header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:1px;}
 .exp-formal-header h2{margin:8px 0 0;font-size:24px;font-weight:900;}
 .exp-formal-header h3{margin:8px 0 0;font-size:18px;font-weight:700;background:rgba(255,255,255,0.2);display:inline-block;padding:6px 20px;border-radius:20px;}
