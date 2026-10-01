@@ -16,6 +16,7 @@ class Schedule extends Model
     public function subject() { return $this->belongsTo(Subject::class); }
     public function teacher() { return $this->belongsTo(Teacher::class); }
     public function room() { return $this->belongsTo(Room::class); }
+    public function transfers() { return $this->hasMany(RoomTransfer::class); }
     
     // <-- TAMBAHAN RELASI BARU
     public function academicPeriod() { return $this->belongsTo(AcademicPeriod::class); }

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { X, AlertTriangle, Search, UserPlus, Filter, BookOpen } from 'lucide-react';
+import { X, AlertTriangle, Search, UserPlus, Filter, BookOpen, Download, Upload, FileSpreadsheet } from 'lucide-react';
 import api from '../../services/api';
 import PageLoader from '../../components/PageLoader';
+import Modal from '../../components/Modal';
+import ImportPanel from '../../components/ImportPanel';
+import { unduhFile, pesanErrorBlob } from '../../services/unduh';
 
 /* ==========================================================================
    HELPER FUNCTIONS & HOOKS
@@ -70,6 +73,8 @@ export default function Teachers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBySubject, setGroupBySubject] = useState(''); 
   const [viewMode, setViewMode] = useState('list'); 
+  const [importOpen, setImportOpen] = useState(false);
+  const [busyFile, setBusyFile] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -199,6 +204,17 @@ export default function Teachers() {
     }
   };
 
+  const handleUnduh = async (url, namaFile, kunci) => {
+    setBusyFile(kunci);
+    try {
+      await unduhFile(url, namaFile);
+    } catch (err) {
+      alert(await pesanErrorBlob(err, 'Gagal mengunduh file.'));
+    } finally {
+      setBusyFile('');
+    }
+  };
+
   /* ==========================================================================
      ✅ PERBAIKAN LOGIKA FILTER
      1. Menggunakan String() agar pencocokan ID (number vs string) berhasil
@@ -238,10 +254,25 @@ export default function Teachers() {
 
       <div className="rsx-page-header">
         <h2>Manajemen Guru</h2>
-        <button className="rsx-btn rsx-btn-primary" onClick={openCreate}>
-          <UserPlus size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-          Tambah Guru
-        </button>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button className="rsx-btn rsx-btn-ghost" disabled={!!busyFile}
+            onClick={() => handleUnduh('/admin/teachers/import/template', 'template-guru.xlsx', 'template')}>
+            <FileSpreadsheet size={15} style={{ marginRight: 6 }} />
+            {busyFile === 'template' ? 'Mengunduh…' : 'Unduh Template'}
+          </button>
+          <button className="rsx-btn rsx-btn-ghost" onClick={() => setImportOpen(true)}>
+            <Upload size={15} style={{ marginRight: 6 }} /> Import Guru
+          </button>
+          <button className="rsx-btn rsx-btn-ghost" disabled={!!busyFile}
+            onClick={() => handleUnduh('/admin/teachers/export', 'ekspor-guru.xlsx', 'ekspor')}>
+            <Download size={15} style={{ marginRight: 6 }} />
+            {busyFile === 'ekspor' ? 'Mengunduh…' : 'Ekspor Guru'}
+          </button>
+          <button className="rsx-btn rsx-btn-primary" onClick={openCreate}>
+            <UserPlus size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            Tambah Guru
+          </button>
+        </div>
       </div>
 
       <div className="rsx-filter-bar">
@@ -483,6 +514,20 @@ export default function Teachers() {
           </div>
         </div>
       )}
+
+      <Modal open={importOpen} title="Import Guru" onClose={() => setImportOpen(false)} width={760}>
+        <ImportPanel
+          base="teachers/import"
+          onSelesai={() => load()}
+          kolomValid={[
+            { label: 'Status', render: (v) => <span className={`imp-badge ${v.status}`}>{v.status === 'baru' ? 'Baru' : 'Update'}</span> },
+            { label: 'Nama', render: (v) => v.nama },
+            { label: 'Email', render: (v) => v.email },
+            { label: 'NIP', render: (v) => v.nip || '-' },
+            { label: 'Mata Pelajaran', render: (v) => (v.mapel.length ? v.mapel.join(', ') : '-') + (v.mapel_tetap ? ' (tetap)' : '') },
+          ]}
+        />
+      </Modal>
     </div>
   );
 }

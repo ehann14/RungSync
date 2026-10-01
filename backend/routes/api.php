@@ -9,9 +9,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomTransferController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\ScheduleImportController; // <-- TAMBAHAN
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeacherImportController; // <-- TAMBAHAN
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +50,11 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':admin'])->group(functio
             [AcademicPeriodController::class, 'copyFromPrevious']
         );
 
+        // ==================== IMPORT JADWAL ====================
+        Route::get('schedules/import/template', [ScheduleImportController::class, 'template']);
+        Route::post('schedules/import/preview', [ScheduleImportController::class, 'preview']);
+        Route::post('schedules/import/commit', [ScheduleImportController::class, 'commit']);
+
         // ==================== JADWAL ====================
         Route::get('schedules', [ScheduleController::class, 'index']);
         Route::post('schedules', [ScheduleController::class, 'store']);
@@ -66,6 +73,12 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':admin'])->group(functio
         Route::delete('rooms/{id}', [RoomController::class, 'destroy']);
 
         // ==================== GURU ====================
+        // Route statis (template/import/ekspor) HARUS di atas route berparameter {teacher}
+        Route::get('teachers/import/template', [TeacherImportController::class, 'template']);
+        Route::get('teachers/export', [TeacherImportController::class, 'export']);
+        Route::post('teachers/import/preview', [TeacherImportController::class, 'preview']);
+        Route::post('teachers/import/commit', [TeacherImportController::class, 'commit']);
+
         Route::get('teachers', [TeacherController::class, 'index']);
         Route::post('teachers', [TeacherController::class, 'store']);
         Route::put('teachers/{teacher}', [TeacherController::class, 'update']);
@@ -81,12 +94,14 @@ Route::middleware(['auth:sanctum', EnsureRole::class . ':admin'])->group(functio
 
         // ==================== KELAS ====================
         Route::get('classes', [ClassController::class, 'index']);
+        Route::get('classes/{id}/students', [ClassController::class, 'students']);
         Route::post('classes', [ClassController::class, 'store']);
         Route::put('classes/{id}', [ClassController::class, 'update']);
         Route::delete('classes/{id}', [ClassController::class, 'destroy']);
 
         // ==================== MATA PELAJARAN ====================
         Route::get('subjects', [SubjectController::class, 'index']);
+        Route::get('subjects/{id}/teachers', [SubjectController::class, 'teachers']);
         Route::post('subjects', [SubjectController::class, 'store']);
         Route::put('subjects/{id}', [SubjectController::class, 'update']);
         Route::delete('subjects/{id}', [SubjectController::class, 'destroy']);

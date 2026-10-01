@@ -11,7 +11,31 @@ class ClassController extends Controller
 {
     public function index() 
     { 
-        return response()->json(SchoolClass::orderBy('name')->get()); 
+        // students_count = jumlah murid per kelas (tambahan, tidak mengubah field lama)
+        return response()->json(SchoolClass::withCount('students')->orderBy('name')->get()); 
+    }
+
+    // Daftar murid satu kelas (eager loading, tanpa N+1)
+    public function students($id)
+    {
+        $kelas = SchoolClass::findOrFail($id);
+
+        $murid = $kelas->students()->with('user:id,name,email')->get()
+            ->sortBy(fn ($s) => mb_strtolower($s->user?->name ?? ''))
+            ->values()
+            ->map(fn ($s) => [
+                'id'    => $s->id,
+                'name'  => $s->user?->name,
+                'email' => $s->user?->email,
+                'nis'   => $s->nis,
+            ]);
+
+        return response()->json([
+            'id'       => $kelas->id,
+            'name'     => $kelas->name,
+            'total'    => $murid->count(),
+            'students' => $murid,
+        ]);
     }
 
     public function store(Request $request)

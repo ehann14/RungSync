@@ -48,7 +48,7 @@ border-radius:14px;padding:20px 22px;box-shadow:0 20px 60px rgba(2,6,23,.35);}
 .mdl-close:hover{color:var(--mdl-text);}
 `;
 
-export default function Modal({ open, title, onClose, children }) {
+export default function Modal({ open, title, onClose, children, width }) {
   const theme = useAppTheme();
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function Modal({ open, title, onClose, children }) {
   return createPortal(
     <div className={`mdl-overlay ${theme === 'dark' ? 'mdl-dark' : ''}`} onMouseDown={onClose}>
       <style>{css}</style>
-      <div className="mdl-box" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="mdl-box" style={width ? { width } : undefined} onMouseDown={(e) => e.stopPropagation()}>
         <div className="mdl-head">
           <h3>{title}</h3>
           <button className="mdl-close" onClick={onClose} type="button">✕</button>
@@ -75,4 +75,4 @@ export default function Modal({ open, title, onClose, children }) {
     </div>,
     document.body
   );
-} 
+}

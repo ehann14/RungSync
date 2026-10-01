@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use App\Models\Subject;
+use App\Models\Teacher; // <-- TAMBAHAN
 use App\Services\AuditLogService; // <-- TAMBAHAN
 use Illuminate\Http\Request;
 
@@ -12,6 +13,35 @@ class SubjectController extends Controller
     public function index() 
     { 
         return response()->json(Subject::orderBy('name')->get()); 
+    }
+
+    // Daftar guru yang mengajar satu mapel (pivot teacher_subject + subject_id lama), tanpa N+1
+    public function teachers($id)
+    {
+        $mapel = Subject::findOrFail($id);
+
+        $guru = Teacher::with('user:id,name,email')
+            ->where(function ($q) use ($mapel) {
+                $q->where('subject_id', $mapel->id)
+                  ->orWhereHas('subjects', fn ($s) => $s->where('subjects.id', $mapel->id));
+            })
+            ->get()
+            ->sortBy(fn ($t) => mb_strtolower($t->user?->name ?? ''))
+            ->values()
+            ->map(fn ($t) => [
+                'id'    => $t->id,
+                'name'  => $t->user?->name,
+                'email' => $t->user?->email,
+                'nip'   => $t->nip,
+                'utama' => (int) $t->subject_id === (int) $mapel->id,
+            ]);
+
+        return response()->json([
+            'id'       => $mapel->id,
+            'name'     => $mapel->name,
+            'total'    => $guru->count(),
+            'teachers' => $guru,
+        ]);
     }
 
     public function store(Request $request)

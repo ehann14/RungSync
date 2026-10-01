@@ -25,6 +25,7 @@ import AdminTransfers from './pages/admin/Transfers';
 import AdminExport from './pages/admin/Export';
 import AdminAuditLog from './pages/admin/AuditLog';
 import AdminAcademicPeriods from './pages/admin/AcademicPeriods';
+import AdminImportSchedules from './pages/admin/ImportSchedules'; // <-- TAMBAHAN BARU
 
 import Profile from './pages/Profile';
 
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="admin/profile" element={<ProtectedRoute roles={['admin']}><Profile role="admin" /></ProtectedRoute>} />
           <Route path="admin/academic-periods" element={<ProtectedRoute roles={['admin']}><AdminAcademicPeriods /></ProtectedRoute>} />
           <Route path="admin/schedules" element={<ProtectedRoute roles={['admin']}><AdminSchedules /></ProtectedRoute>} />
+          <Route path="admin/import-schedules" element={<ProtectedRoute roles={['admin']}><AdminImportSchedules /></ProtectedRoute>} />
           <Route path="admin/schedule-history" element={<ProtectedRoute roles={['admin']}><AdminScheduleHistory /></ProtectedRoute>} /> {/* <-- TAMBAHAN BARU */}
           <Route path="admin/rooms" element={<ProtectedRoute roles={['admin']}><AdminRooms /></ProtectedRoute>} />
           <Route path="admin/teachers" element={<ProtectedRoute roles={['admin']}><AdminTeachers /></ProtectedRoute>} />

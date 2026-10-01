@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, DoorOpen, UserCheck,
-  GraduationCap, School, BookOpen, ArrowLeftRight, FileDown,
+  GraduationCap, School, BookOpen, ArrowLeftRight, FileDown, FileUp,
   LogOut, CalendarDays, Clock, Moon, Sun, Menu
 } from 'lucide-react';
 import api from '../services/api';
@@ -32,6 +32,7 @@ const MENUS = {
     ] },
     { group: 'Lainnya', items: [
       { label: 'Perpindahan', to: '/admin/room-transfers', icon: <ArrowLeftRight size={18} /> },
+      { label: 'Import Jadwal', to: '/admin/import-schedules', icon: <FileUp size={18} /> },
       { label: 'Ekspor Jadwal', to: '/admin/export', icon: <FileDown size={18} /> },
     ] },
   ],

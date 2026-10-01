@@ -38,7 +38,7 @@ const css = `
 .crud-page:not(.crud-dark) .crud-error{background:rgba(239,68,68,.08);color:#b91c1c;}
 `;
 
-export default function CrudPage({ title, endpoint, columns, fields }) {
+export default function CrudPage({ title, endpoint, columns, fields, rowActions }) {
   const theme = useAppTheme();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -121,6 +121,7 @@ export default function CrudPage({ title, endpoint, columns, fields }) {
                       <td key={i}>{c.render ? c.render(row) : row[c.key]}</td>
                     ))}
                     <td>
+                      {rowActions && rowActions(row)}
                       <button className="crud-btn crud-btn-edit crud-btn-sm" onClick={() => openEdit(row)}>Edit</button>
                       <button className="crud-btn crud-btn-danger crud-btn-sm" onClick={() => handleDelete(row)}>Hapus</button>
                     </td>
